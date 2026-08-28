@@ -1,320 +1,336 @@
 # Trả lời của Claude
 
-Sáu ý của bạn, tôi trả lời từng cái. Ý số 4 làm thay đổi phạm vi nên tôi đã sửa lại đặc tả: `design/KIDEA_SPEC.md` (bỏ hậu tố phiên bản khỏi tên file luôn).
+Ý 2 của bạn là một chỉnh sửa **đúng**, và nó làm thay đổi thiết kế. Ý 3 bổ sung một mảnh tôi thiếu hẳn. Đã cập nhật `design/KIDEA_SPEC.md`.
 
 ---
 
-## Ý 1 — "Bậc" và "mốc" là gì
+## Ý 2 — Bạn đúng, và tôi sai ở một chỗ quan trọng
 
-Xin lỗi, tôi dùng hai chữ này mà chưa định nghĩa. Giải thích lại.
+Bạn nói: *"Trong mô hình của Kidea thì Human không code đâu nhé"*. Tôi đã viết cả tài liệu như thể có người ngồi gõ annotation bằng tay. Sai.
 
-### Ẩn dụ: toà nhà 5 tầng
+Nhưng câu hỏi bạn đặt ra làm lộ một lỗ hổng thật trong lập luận của tôi, nên tôi phải trả lời cho tới nơi.
 
-Bạn đang xây một toà nhà. **Không thể xây tầng 3 khi tầng 2 chưa xong.**
+### Lỗ hổng
 
-- **Bậc** = "thư mục này thuộc tầng mấy". Nó **gắn chết vào thư mục**, không bao giờ đổi.
-- **Mốc** = "hiện đang xây tới tầng mấy". Nó là **một con số thay đổi được**, ghi trong cuốn sổ.
+Tôi từng nói: *"index do AI kê khai thì không đáng tin hơn trí nhớ AI"*.
 
-### Bậc của từng thư mục
+Nhưng annotation `@kidea:implements BR-BAL-003` **cũng do AI khai**. Vậy tôi tự mâu thuẫn à?
 
-| Bậc | Thư mục | Chứa gì |
-|:---:|---|---|
-| 1 | `docs/product/` | Sản phẩm làm gì, có tính năng nào |
-| 2 | `docs/requirements/` | Nghiệp vụ từng tính năng |
-| 3 | `docs/logical-tests/`, `docs/ux/` | Test case dạng chữ, thiết kế màn hình |
-| 4 | `docs/architecture/` | Chia service, thiết kế dữ liệu, API |
-| 5 | `src/`, `tests/` | Code thật |
+Không — nhưng lý do thật **không phải** là "ai gõ phím". Tôi nói nhầm chỗ nhấn mạnh. Lý do thật có hai điểm.
 
-Cách nhớ: **bậc thấp trả lời "làm cái gì", bậc cao trả lời "làm thế nào"**. Không thể trả lời "làm thế nào" khi chưa biết "làm cái gì".
+### Điểm 1 — cùng một hành động, không có bước thứ hai để quên
 
-### Luật chỉ có một dòng
+```mermaid
+flowchart LR
+    subgraph BAD["File index tách rời"]
+    A1["AI sửa code<br/>ở file A"] --> A2["AI phải NHỚ<br/>đi cập nhật file B"]
+    A2 -.->|"quên"| A3["Index sai<br/>không ai biết"]
+    end
+
+    subgraph GOOD["Annotation trong code"]
+    B1["AI sửa code và annotation<br/>cùng một chỗ, cùng lúc"] --> B2["Không có bước thứ hai"]
+    end
+```
+
+### Điểm 2 — quan trọng hơn: máy đối chiếu chéo được
+
+Annotation không được tin vì "AI khai thì chắc đúng". Nó được tin vì **kidea kiểm tra được nó bằng một nguồn khác**:
+
+| Luật kiểm tra | Bắt được lỗi gì |
+|---|---|
+| Mọi `BR` phải có ít nhất một hàm khai `implements` | Quy tắc chưa ai code |
+| Mọi hàm trong đường dẫn nghiệp vụ phải khai `implements` | AI code mà quên khai |
+| Mọi `LT` phải có ít nhất một test khai `covers` | Test case chưa có test code |
+| Mọi ID trong annotation phải tồn tại thật | AI bịa ra `BR-BAL-999` |
+| Hàm khai `implements BR-X` mà `BR-X` đã bị thay thế | Code chạy theo quy tắc hết hiệu lực |
+
+**Một file index tách rời không có gì để đối chiếu, nên không kiểm được.** Đó mới là khác biệt thật.
+
+### Và bạn đúng luôn về ngôn ngữ
+
+*"Vậy nên tôi nghĩ việc các hệ thống dùng ngôn ngữ lập trình nào thì cũng xử lý được thôi."*
+
+Đúng. Tôi đã bỏ hẳn phần "chọn C++ thì tốt hơn Rust". Lý do: **phần mang ý nghĩa nghiệp vụ đều do AI viết bằng chữ, không phụ thuộc ngôn ngữ.** Phần máy đọc chỉ trả lời "ai gọi ai" — thiếu vài cạnh thì mất một ít gợi ý, không làm hỏng luật gác cổng.
+
+Thiết kế mới có ba lớp, dùng lớp nào có sẵn:
+
+```mermaid
+flowchart TD
+    A["/kidea index"] --> B{"Có động cơ chính xác<br/>cho ngôn ngữ này?"}
+    B -- "Có" --> C["Dùng nó<br/>cạnh: chính xác"]
+    B -- "Không" --> D["tree-sitter<br/>cạnh: xấp xỉ"]
+    C --> E{"Còn chỗ máy<br/>không giải được?"}
+    D --> E
+    E -- "Có" --> F["Hỏi AI ĐÚNG CHỖ ĐÓ<br/>cạnh: AI suy luận"]
+    E -- "Không" --> G["Xong"]
+    F --> G
+```
+
+Lớp 3 chính là ý bạn nói *"hoặc các model AI làm được"*. Nhưng dùng đúng liều: **không bắt AI đọc cả codebase mỗi lần index** — 500 file mỗi lần thì vừa chậm, vừa tốn token, vừa có thể bịa. Chỉ hỏi khi máy bó tay, ví dụ một lời gọi qua interface không rõ trỏ đâu. Câu hỏi hẹp, câu trả lời kiểm chứng được.
+
+**Nguyên tắc phân công:**
+
+> **Máy** làm việc đếm được. **AI** làm việc hiểu được. **Human** quyết việc chọn được.
+
+Kết quả: **chọn ngôn ngữ theo sản phẩm của bạn.** Rust, C++, Go, TypeScript, Python, Java đều chạy. Hai câu hỏi tôi định hỏi bạn về ngôn ngữ đã tự tan.
+
+---
+
+## Ý 3 — Ba tấm bản đồ. Bạn đã chỉ ra mảnh tôi thiếu hẳn.
+
+Bạn muốn ba tấm. Tôi trước đó gộp làm một, và **tấm số 1 thì tôi thiếu thật** — không chỉ gộp mà là chưa thiết kế.
+
+```mermaid
+flowchart LR
+    subgraph M1["BẢN ĐỒ 1 — NGHIỆP VỤ"]
+    A1["FEAT"] --> A2["BR"]
+    A2 --> A3["ENT<br/>thực thể"]
+    A2 -.->|"phụ thuộc<br/>thay thế"| A2
+    A4["INV"] --> A3
+    end
+    subgraph M3["BẢN ĐỒ 3 — CẦU NỐI"]
+    B1["BR ↔ hàm/file/module"]
+    end
+    subgraph M2["BẢN ĐỒ 2 — CODE"]
+    C1["hàm A"] -->|"gọi"| C2["hàm B"]
+    C3["file X"] -->|"import"| C4["file Y"]
+    end
+    M1 --> M3
+    M3 --> M2
+```
+
+### Bản đồ 1 — cái khó nhất, và chìa khoá là "thực thể"
+
+Ví dụ của bạn rất hay, tôi dùng luôn:
+
+> *Trước đây sàn chỉ có lệnh Market thì phần quản lý số dư chỉ cần số dư tổng. Nhưng giờ thêm lệnh Limit thì cần available và locked.*
+
+Tức là **thêm một tính năng làm hỏng một quy tắc đã có**. Làm sao máy phát hiện được?
+
+**Chìa khoá là một khái niệm mới: `ENT` — thực thể nghiệp vụ.** Đây là *danh từ* mà các quy tắc cùng động vào: số dư, lệnh, sổ lệnh, tài khoản.
+
+> Hai quy tắc **không biết nhau**, nhưng nếu **cùng ghi vào một thực thể** thì chúng liên quan tới nhau.
+
+Cụ thể với ví dụ của bạn:
+
+```yaml
+# Trước — chỉ có lệnh Market
+id: BR-BAL-001
+title: "Số dư là một con số tổng"
+writes: [ENT-BALANCE]
+
+# Sau — thêm lệnh Limit
+id: BR-BAL-002
+title: "Số dư tách thành khả dụng và bị giữ"
+writes: [ENT-BALANCE]
+supersedes: [BR-BAL-001]
+```
+
+kidea chạy `check` và lần ra toàn bộ chuỗi:
+
+```mermaid
+flowchart TD
+    A["BR-BAL-002 khai<br/>supersedes BR-BAL-001"] --> B["BR-BAL-001 chuyển STALE"]
+    C["Phát hiện thêm:<br/>BR-BAL-001 và BR-BAL-002<br/>CÙNG GHI ENT-BALANCE"] --> D["CẢNH BÁO xung đột:<br/>hai quy tắc tranh nhau<br/>một thực thể"]
+    B --> E["Mọi LT cover BR-BAL-001<br/>chuyển STALE"]
+    E --> F["Qua BẢN ĐỒ 3:<br/>mọi hàm khai implements BR-BAL-001<br/>chuyển IMPACT_REVIEW"]
+    F --> G["Qua BẢN ĐỒ 2:<br/>mọi hàm GỌI TỚI những hàm đó<br/>được liệt kê để kiểm tra"]
+    G --> H["/kidea change close TỪ CHỐI<br/>chừng nào còn sót"]
+```
+
+**Điểm hay nhất:** kể cả khi AI **quên khai** `supersedes`, luật *"hai quy tắc cùng ghi một thực thể"* vẫn bắt được. Đó là lý do `ENT` tồn tại — nó là **lưới an toàn khi khai báo trực tiếp bị bỏ sót**.
+
+### Ba tấm nối lại thành một chuỗi
+
+Đây là toàn bộ giá trị:
+
+```mermaid
+flowchart LR
+    A["BR-BAL-001<br/>đổi"] -->|"bản đồ 1"| B["BR-BAL-002<br/>cùng ghi ENT-BALANCE"]
+    A -->|"bản đồ 1"| C["LT-ORDER-0042<br/>0043, 0051"]
+    A -->|"bản đồ 3"| D["reserve_balance()"]
+    D -->|"bản đồ 2"| E["place_order()<br/>risk_precheck()"]
+    C -->|"bản đồ 3"| F["test_reserve_locks()"]
+```
+
+Gõ `/kidea impact BR-BAL-001` là đi hết cả ba, in ra một danh sách duy nhất.
+
+### Ba tấm, ba nguồn, ba người tạo
+
+| Bản đồ | Nguồn | Ai tạo | Kiểm chứng bằng gì |
+|---|---|---|---|
+| 1 — nghiệp vụ | Frontmatter trong tài liệu | **AI viết** khi soạn nghiệp vụ | Human **duyệt** ở trạm requirements |
+| 2 — code | Máy đọc source | **Máy**, không ai can thiệp | Không cần, nó là sự thật |
+| 3 — cầu nối | Annotation trong code | **AI viết** khi nó code | Máy đối chiếu với 1 và 2 |
+
+### Vì sao ba file thay vì một
+
+| Bản đồ | Dựng lại khi nào | Chi phí |
+|---|---|---|
+| 1 — nghiệp vụ | Tài liệu đổi | Rẻ |
+| 2 — code | Code đổi | Đắt nhất |
+| 3 — cầu nối | Code đổi | Rẻ |
+
+Tách ra thì dựng lại được từng cái, và trả lời được câu **"tấm nào đang cũ"**. Gộp một file thì không biết phần nào cũ.
+
+---
+
+## Ý 4 — Giữ và cắt cái gì, nói bằng "bạn gõ gì, nó làm gì"
+
+Trước tôi chỉ liệt kê tên lệnh. Nói lại theo kiểu cụ thể.
+
+### `/kidea slice` — có phải giống "/goal" không?
+
+**Gần đúng, nhưng khác ở bốn chỗ.** Đúng là bạn giao mục tiêu "làm xong tính năng đặt lệnh Limit" và AI tự chạy. Nhưng:
+
+| | AI chạy tự do | `/kidea slice` |
+|---|---|---|
+| Đụng được file nào | Bất kỳ file nào | **Chỉ những file đã khai trước** |
+| Ngữ cảnh | Cùng một context, càng dài càng loãng | **Mỗi sub-task một context sạch** |
+| Kết thúc | AI tự nói "xong rồi" | **Human phải gõ `approve`** |
+| Nếu chưa đủ điều kiện | Cứ làm | **Bị chặn từ đầu** |
+
+Ba bước:
 
 ```text
-bậc của file  <=  mốc   →  CHO GHI
-bậc của file  >   mốc   →  CHẶN
+/kidea slice start FEAT-MVP-ORDER-LIMIT
+    → Kiểm tra tính năng đã qua trạm chưa
+    → Khai báo: slice này chỉ được đụng src/balance/, src/order/
+    → Mở khoá đúng những đường dẫn đó
+
+/kidea slice plan FEAT-MVP-ORDER-LIMIT
+    → AI chia thành sub-task
+    → Mỗi sub-task nhận gói ngữ cảnh tính từ ba bản đồ
+    → Mỗi sub-task chạy trong 1 subagent, context sạch
+
+/kidea slice verify FEAT-MVP-ORDER-LIMIT
+    → Chạy test
+    → Kiểm tra mọi LT đều có test cover
+    → Kiểm tra code mới có annotation
+    → Báo cáo. KHÔNG tự duyệt.
 ```
 
-### Ví dụ thật
+### Bốn lệnh còn lại tôi giữ, và vì sao
 
-Giả sử `mốc = 2` — bạn đang viết nghiệp vụ, chưa duyệt xong.
+**`/kidea change bug "Lệnh bị tạo trùng sau khi retry"`**
 
-| AI muốn ghi vào | Bậc | Kết quả | Vì sao |
-|---|:---:|---|---|
-| `docs/product/overview.md` | 1 | **CHO** | 1 ≤ 2 |
-| `docs/requirements/BR-BAL-003.md` | 2 | **CHO** | 2 ≤ 2, đúng việc đang làm |
-| `docs/logical-tests/LT-ORDER-0042.md` | 3 | **CHẶN** | 3 > 2 — nghiệp vụ chưa chốt mà đã viết test |
-| `docs/architecture/services.md` | 4 | **CHẶN** | 4 > 2 |
-| `src/balance/reserve.cpp` | 5 | **CHẶN** | 5 > 2 — chỗ AI hay nhảy cóc nhất |
+Sinh một hồ sơ việc `CHANGE-2026-0043`. Từ lúc này mọi thứ AI sửa đều đóng dấu hồ sơ đó.
 
-Khi bạn gõ `/kidea approve requirements` cho **mọi** tính năng MVP, script nâng mốc từ 2 lên 3. Bậc 3 mở ra ngay, bậc 4 và 5 vẫn khoá.
+*Thiếu nó thì hỏng gì?* Đây chính là ý *"mỗi lần sửa đổi kèm version của session đang sửa"* trong draft của bạn. Không có hồ sơ thì cái dấu không trỏ vào đâu cả, và câu *"phần này đã cập nhật cho lần sửa hiện tại chưa"* không trả lời được. **Đây là thứ làm cho cơ chế "làm đến cùng" chạy được.**
 
-```mermaid
-flowchart TD
-    A["mốc = 2"] --> B["Bậc 1, 2: MỞ<br/>Bậc 3, 4, 5: KHOÁ"]
-    B --> C["Human duyệt xong nghiệp vụ<br/>mọi tính năng MVP"]
-    C --> D["Script nâng mốc = 3"]
-    D --> E["Bậc 1, 2, 3: MỞ<br/>Bậc 4, 5: KHOÁ"]
-```
+Và `/kidea change close` **từ chối đóng nếu còn chỗ chưa đồng bộ**.
 
-### Vì sao luật là "≤" chứ không phải "="
+**`/kidea impact BR-BAL-003`** — đổi quy tắc này thì ảnh hưởng đâu. Đi xuyên ba bản đồ.
 
-Để bạn **luôn được quyền quay lại sửa nghiệp vụ**. Ở mốc 4 bạn vẫn sửa được tài liệu bậc 2.
+**`/kidea adopt`** — bạn có project cũ chưa dùng kidea, lệnh này quét code, dựng bản đồ 2, liệt kê chỗ thiếu tài liệu. **Không bịa nghiệp vụ**, chỉ vẽ lại cái đang có và chỉ ra lỗ hổng.
 
-kidea không cấm bạn đổi ý. Nó chỉ bắt mọi thứ phía sau phải làm lại cho khớp — đúng câu bạn viết trong draft: *"khi sửa hoặc xoá thì truy ra các bên liên quan và làm đến cùng"*.
+**Trạm `release`** — trạm cuối, kiểm đủ mọi approval trước khi lên production. Chỉ là thêm một trạm vào bộ máy sẵn có, gần như không tốn gì.
 
----
+### Bốn thứ tôi cắt, và cắt vì sao
 
-## Ý 2 — Nếu dùng C++20/26 thay Rust thì sao?
-
-Câu trả lời có thể làm bạn bất ngờ: **về mặt đọc code, C++ DỄ HƠN Rust.** Ngược với trực giác.
-
-### Trước hết, hai khái niệm
-
-Muốn vẽ tấm bản đồ "hàm nào gọi hàm nào", có hai cách đọc code:
-
-| | **tree-sitter** | **Compiler frontend** |
+| Cắt | Nếu làm thì nó sẽ làm gì | Vì sao không cần |
 |---|---|---|
-| Đọc cái gì | Chỉ **cú pháp** — hình dạng chữ | **Ngữ nghĩa** — hiểu như trình biên dịch |
-| Cần project biên dịch được | Không | **Có** |
-| Tốc độ | Nhanh | Chậm hơn nhiều |
-| Chạy trên code chưa viết xong | **Được** | Không |
+| `/kidea next` | AI tự chọn bước hợp lệ kế tiếp rồi làm | `/kidea status` đã in ra "bước tiếp theo là gì". Thêm lệnh này chỉ đỡ phải gõ, không thêm khả năng nào |
+| Giao diện web | Trang web xem trạng thái project | Mọi thứ đã là file text, đọc bằng editor hoặc mở thẳng trên GitHub từ điện thoại. Thêm web là thêm một thứ phải nuôi |
+| Tự động deploy | kidea tự đẩy code lên server | kidea **gác** deploy — kiểm đủ approval chưa. Việc đẩy vẫn do script/CI của bạn. Viết lại công cụ deploy là vẽ thêm việc |
+| Bộ chạy test riêng | kidea tự có cơ chế chạy test | Nó chỉ gọi đúng câu lệnh bạn khai (`ctest`, `cargo test`, `npm test`) rồi đọc kết quả |
 
-- **Cú pháp** là hình dạng: *"đây là một lời gọi hàm tên `foo`"*.
-- **Ngữ nghĩa** là ý nghĩa: *"`foo` này chính là hàm định nghĩa ở dòng 42 file kia, không phải `foo` trùng tên ở chỗ khác"*.
-- **Compiler frontend** là phần đầu của trình biên dịch — phần đọc hiểu code, trước khi sinh ra file chạy.
-
-### So sánh hai ngôn ngữ
-
-| | Rust | C++20/26 |
-|---|---|---|
-| tree-sitter | Có | Có |
-| Compiler frontend cho Python | **Không có bản chính thức** | **`libclang`, binding Python chính thức, dùng nhiều năm rồi** |
-| Đọc xuyên qua macro | Không | **Có** |
-| Phân giải overload / template | Không cần | **Giải được** |
-| Gọi qua `dyn Trait` / hàm ảo | Sót | Sót — **hai bên như nhau** |
-| Doxygen dùng được | Không | **Có** |
-
-**Lý do C++ dễ hơn không phải vì C++ đơn giản hơn** — nó phức tạp hơn nhiều. Mà vì **Clang mở cửa cho người ngoài vào đọc**, còn Rust thì chưa mở API ổn định.
-
-Và bạn đã tự nói ra từ đầu: *"index như kiểu Doxygen bên c++ ấy"*. Doxygen chạy trên C++ là thật và đã chạy 20 năm rồi. Doxygen không đọc được Rust.
-
-### Nhưng đừng chọn ngôn ngữ vì kidea
-
-Đây là điều quan trọng nhất trong phần này.
-
-**Chọn ngôn ngữ theo cái sản phẩm của bạn cần.** Chọn C++ chỉ vì kidea dễ đọc hơn là để cái đuôi vẫy con chó.
-
-Vì phần **quan trọng nhất của tấm bản đồ là lớp annotation** — dòng `@kidea:implements BR-BAL-003` bạn viết trong code. Lớp đó **giống hệt nhau ở cả hai ngôn ngữ**, vì cả C++ lẫn Rust đều dùng `///` để viết chú thích. Lớp máy tự đọc chỉ là phần bổ trợ.
-
-### Nên tôi thiết kế động cơ lai, không khoá vào ngôn ngữ nào
-
-```mermaid
-flowchart TD
-    A["/kidea index"] --> B{"Có compiler frontend<br/>và project build được?"}
-    B -- "Có" --> C["Dùng nó<br/>đánh dấu: chính xác"]
-    B -- "Không" --> D["Dùng tree-sitter<br/>đánh dấu: xấp xỉ"]
-    C --> E["Ghép với lớp annotation"]
-    D --> E
-    E --> F["graph.json"]
-```
-
-Chọn C++ thì nhánh trái chạy được. Chọn Rust thì hiện chỉ có nhánh phải. **Luật gác cổng chỉ dựa trên lớp annotation, nên không bị ảnh hưởng.**
-
-Bạn cứ chọn theo sản phẩm, tôi lo phần còn lại.
-
----
-
-## Ý 3 — "Đặc tả đã chốt xong những gì", nói dễ hiểu
-
-Trước tôi liệt kê tên file, không giải thích chúng để làm gì. Nói lại theo kiểu **mỗi thứ giải quyết vấn đề gì**.
-
-### 1. Cuốn sổ công trường — `state.yaml`
-
-**Vấn đề:** Hôm nay bạn mở Claude Code, ngày mai mở lại, AI quên sạch. Không biết đang làm tới đâu.
-
-**Cách giải:** Một file nằm trong repo, ghi mọi tính năng đang ở trạm nào, ai đã duyệt, còn thiếu gì. Đóng máy mở lại vẫn còn nguyên.
-
-**Ba luật khoá chặt:**
-
-| Luật | Chống cái gì |
-|---|---|
-| `human: APPROVED` chỉ đặt được bởi lệnh `/kidea approve` | AI tự phong "đã duyệt" cho chính nó |
-| Không duyệt được khi AI còn báo thiếu | Bạn lỡ tay duyệt thứ chưa xong |
-| Không duyệt được khi còn file sửa dở chưa commit | Duyệt một nội dung không xác định được |
-
-Luật 3 cần giải thích thêm. **"Working tree bẩn"** = còn file đã sửa mà chưa commit. Duyệt là **chụp lại dấu vân tay nội dung** — chụp lúc nội dung còn đang thay đổi thì dấu vân tay vô nghĩa, và sau này không phát hiện được ai sửa gì.
-
-### 2. Annotation trong code
-
-**Vấn đề:** Nhìn một hàm, không biết nó phục vụ quy tắc nghiệp vụ nào.
-
-**Cách giải:** Viết chú thích ngay trên hàm:
-
-```cpp
-/// @kidea:implements BR-BAL-003, BR-BAL-004
-ReservationId reserve_balance(const UserId& user, Decimal amount);
-```
-
-Ai sửa hàm cũng nhìn thấy dòng này. Đây là nguồn sự thật của tấm bản đồ.
-
-### 3. Tấm bản đồ — `graph.json`
-
-**Vấn đề:** Sửa một quy tắc, không biết còn chỗ nào phụ thuộc nó.
-
-**Cách giải:** Một file sinh ra tự động, ghi cái gì liên quan cái gì. Mỗi mối liên hệ đánh dấu rõ **do người viết** hay **do máy đoán** — để bạn biết tin được bao nhiêu phần.
-
-### 4. Sổ bằng chứng — `log.jsonl`
-
-**Vấn đề:** Ba tháng sau có sự cố, không ai nhớ vì sao lúc đó lại duyệt.
-
-**Cách giải:** Mỗi sự kiện ghi một dòng, **chỉ ghi thêm, không sửa không xoá**. Ai duyệt gì, lúc nào, trên commit nào, đều tra lại được.
-
-### 5. Thông điệp khi chặn
-
-**Vấn đề:** Nếu chỉ nói "bị chặn", AI sẽ loay hoay thử cách khác cho bằng được.
-
-**Cách giải:** Thông điệp phải nói đủ **ba điều**: chặn vì sao · đang kẹt ở đâu · phải làm gì tiếp. Có đủ ba thì AI quay về làm đúng việc thay vì tìm đường vòng.
-
----
-
-## Ý 4 — Không chia phiên bản. Đã sửa xong.
-
-Tôi đã bỏ toàn bộ v0.1/v0.2/v0.3 khỏi tài liệu. Đổi tên file thành `KIDEA_SPEC.md` và `KIDEA_DESIGN.md`.
-
-Nhưng bạn dặn *"tính năng nào không cần thiết thì đừng vẽ ra"*, nên tôi rà lại từng thứ và **cắt bớt**:
-
-### Cắt hẳn
-
-| Cắt | Vì sao |
-|---|---|
-| `/kidea next` | Chỉ là vỏ bọc tiện tay của `status`. Không thêm giá trị |
-| Giao diện web | Mọi thứ là file text đọc bằng editor hoặc GitHub. Thêm giao diện là thêm một thứ phải nuôi |
-| Tự động deploy | kidea *gác* deploy, không *làm* deploy. Việc deploy vẫn do script/CI của bạn chạy |
-| Bộ chạy test riêng | Gọi đúng câu lệnh bạn khai trong cấu hình rồi đọc kết quả. Không đẻ ra công cụ mới |
-| Quản lý hạ tầng, môi trường | Ngoài phạm vi. Đó là việc của Terraform/Ansible/K8s |
-
-### Giữ lại, vì thiếu thì hỏng
-
-| Giữ | Vì sao bắt buộc |
-|---|---|
-| `/kidea change` | **Không có nó thì cơ chế "chưa đồng bộ" không chạy được.** Dấu `synced_with` phải trỏ vào một cái gì đó có thật. Đây chính là ý "version của session" trong draft của bạn |
-| `/kidea slice` | Vòng lặp làm trọn một tính năng. Đây là phần *dùng hàng ngày* |
-| Gói ngữ cảnh + subagent | Yêu cầu số 1 trong draft của bạn: context sạch cho từng sub-task |
-| `/kidea adopt` | Để kéo project cũ vào. Rẻ, và chắc chắn có lúc cần |
-| Trạm release | Chỉ là thêm một trạm vào bộ máy sẵn có, gần như không tốn gì |
-
-**Kết quả: 9 lệnh.**
-
-`init` · `status` · `check` · `index` · `approve` · `impact` · `change` · `slice` · `adopt`
-
-Bản Codex cũ có khoảng 40 lệnh. Đây là 9.
+**Còn lại 9 lệnh:** `init` · `status` · `check` · `index` · `approve` · `impact` · `change` · `slice` · `adopt`
 
 ---
 
 ## Ý 5 — "Thứ tự code" nghĩa là gì
 
-Chỗ này tôi viết tắt quá. Nói lại.
+Tôi viết tắt quá. Nói lại thật đơn giản.
 
-### Phân biệt hai khái niệm
+### Vấn đề rất tầm thường
 
-Đây là chỗ dễ nhầm, và nó liên quan tới ý 4 của bạn:
+kidea gồm khoảng 12 file Python. **Tôi không viết được 12 file cùng một lúc.** Phải viết file nào trước, file nào sau.
 
-| | Nghĩa là gì |
-|---|---|
-| **Phiên bản** | Có bản v0.1 dùng được rồi, sau đó ra v0.2 phải nâng cấp. Bạn đã nói **không** — đúng, tôi bỏ rồi |
-| **Thứ tự xây** | Tôi không viết được 20 file cùng một lúc. Phải có file nào trước file nào |
+"Thứ tự code" chỉ có nghĩa là: **tôi viết cái nào trước.** Không có gì phức tạp hơn.
 
-**Không chia phiên bản khác với làm mọi thứ cùng lúc.** Chỉ có một bản duy nhất, nhưng vẫn phải xây theo thứ tự.
+### Nhưng thứ tự nào cũng được à?
 
-### Vì sao thứ tự lại quan trọng
+Không. Và đây mới là ý tôi muốn nói.
 
-Vì tôi có thể thiết kế sai. Nếu tôi xây hết 9 lệnh rồi mới đưa bạn xem, mà ý tưởng cốt lõi sai, thì mất trắng nhiều tuần.
+Nếu tôi viết hết 12 file rồi mới đưa bạn xem, mà **ý tưởng cốt lõi sai**, thì mất trắng nhiều tuần.
 
-Nên tôi sắp thứ tự sao cho **bạn tự tay thử được thứ gì đó càng sớm càng tốt**.
+Nên tôi sắp thứ tự theo một tiêu chí duy nhất: **sau mỗi bước, bạn tự tay thử được cái gì.**
 
-### Bảng thứ tự
+### Bảng: mỗi bước xong, bạn làm được gì
 
-| # | Tôi xây gì | Xong thì **bạn tự tay thử** được gì |
+| # | Tôi viết gì | Xong thì **bạn tự tay làm được** |
 |:---:|---|---|
-| 1 | Cuốn sổ + bộ test | Chưa thấy gì. Nền móng |
-| 2 | **Người gác + hook** | **Bạn bảo tôi viết code khi trạm chưa qua, và xem tôi bị chặn** |
+| 1 | Cuốn sổ + bộ test | Chưa gì cả. Nền móng |
+| 2 | **Người gác + hook** | **Bạn bảo tôi "code phần Market đi", và xem tôi bị chặn** |
 | 3 | `init` + `status` | Đưa tài liệu ChatGPT thật vào, xem kidea báo thiếu gì |
 | 4 | `check` + `approve` | Duyệt 1 trạm, rồi sửa tài liệu, xem approval bị thu hồi |
-| 5 | Đọc code + `index` + `impact` | Hỏi "sửa quy tắc này ảnh hưởng đâu" trên code thật |
-| 6 | `change` + đánh dấu chưa đồng bộ | Mở một việc sửa, xem kidea không cho đóng khi còn sót |
-| 7 | `slice` + gói ngữ cảnh + subagent | Làm trọn 1 tính năng, mỗi sub-task chạy context sạch |
-| 8 | `adopt` | Kéo một project cũ của bạn vào kidea |
-| 9 | Chạy thật | Tìm chỗ thiết kế sai, sửa |
+| 5 | **Bản đồ 1 + `impact` nghiệp vụ** | **Hỏi "đổi quy tắc số dư thì quy tắc nào liên quan"** |
+| 6 | Bản đồ 2 + 3 | Hỏi "đổi quy tắc này thì code nào phải sửa" |
+| 7 | `change` | Mở việc sửa, xem kidea không cho đóng khi còn sót |
+| 8 | `slice` + gói ngữ cảnh | Làm trọn 1 tính năng, mỗi sub-task context sạch |
+| 9 | `adopt` | Kéo project cũ vào |
+| 10 | Chạy thật | Tìm chỗ sai |
 
-**Bước 2 là bước quan trọng nhất.** Đó là lúc bạn biết ý tưởng cốt lõi — "script chặn AI, không phải lời dặn chặn AI" — có hoạt động thật không. Nếu nó không chạy, cả thiết kế phải nghĩ lại, và tôi muốn biết điều đó sau vài ngày chứ không phải sau vài tuần.
+### Hai bước quan trọng nhất
+
+**Bước 2** — chứng minh ý tưởng gốc có thật không: *script chặn được AI, chứ không phải lời dặn chặn AI*. Nếu cái này không chạy thì cả thiết kế phải nghĩ lại, và tôi muốn biết sau vài ngày chứ không phải sau vài tuần.
+
+**Bước 5** — chứng minh bản đồ nghiệp vụ trả lời đúng câu bạn cần ở ý 3. Đây là mảnh mới nhất nên cũng rủi ro nhất.
 
 ---
 
-## Ý 6 — Quyết định mới có ảnh hưởng "4 chỗ có thể sai" không?
+## Ý 6 — Những chỗ có thể sai, sau khi cập nhật
 
-Có, hai chỗ. Và có thêm một rủi ro mới.
+Bạn đoán đúng, cập nhật ở trên làm thay đổi danh sách này.
 
-### Bị ảnh hưởng bởi việc chọn C++
+### Biến mất
 
-**Rủi ro số 2 — "ranh giới bậc quá thô" — nặng hơn nếu chọn C++.**
+**Rủi ro "call graph Rust sẽ sót"** — không còn quan trọng nữa. Sau ý 2 của bạn, luật gác cổng chỉ dựa trên bản đồ 1 và 3, mà cả hai đều là chữ do AI viết. Bản đồ 2 thiếu vài cạnh thì chỉ mất một ít gợi ý.
 
-Luật gác cổng dựa trên "thư mục này thuộc bậc mấy". Nhưng project C++ có nhiều thư mục **không thuộc bậc nào rõ ràng**:
+**Rủi ro "ranh giới bậc quá thô"** — đã hạ xuống. Tôi cho bảng ranh giới nằm trong file cấu hình để bạn chỉnh, thay vì cắm cứng trong code.
 
-```text
-CMakeLists.txt        ← file build, bậc mấy?
-cmake/                ← script build
-build/                ← sinh ra tự động
-third_party/          ← thư viện ngoài
-include/              ← header, bậc 5 hay riêng?
-tools/                ← script phụ trợ
+### Xuất hiện — và đây là rủi ro lớn nhất hiện giờ
+
+**AI khai `ENT` không nhất quán.**
+
+Bản đồ 1 chỉ mạnh khi AI gọi cùng một thứ bằng cùng một tên. Nếu chỗ này viết `ENT-BALANCE`, chỗ kia viết `ENT-USER-BALANCE`, thì máy tưởng là hai thực thể khác nhau, và **lưới an toàn thủng ngay**.
+
+```mermaid
+flowchart LR
+    A["BR-BAL-001<br/>writes: ENT-BALANCE"] --> C{"Máy so tên"}
+    B["BR-BAL-002<br/>writes: ENT-USER-BALANCE"] --> C
+    C --> D["Tên khác nhau<br/>→ tưởng không liên quan<br/>→ KHÔNG cảnh báo"]
 ```
 
-Rust gọn hơn nhiều — `Cargo.toml`, `src/`, `tests/` là gần như hết.
+**Cách tôi chống:** danh sách `ENT` được **chốt sớm ở trạm `scope` và Human duyệt**. Sau đó `check` **từ chối** bất kỳ `ENT` lạ nào không có trong danh sách. Muốn thêm thực thể mới thì phải quay lại trạm `scope`, và bạn nhìn thấy.
 
-**Tôi có sẵn danh sách miễn trừ** cho mấy thư mục này, nhưng danh sách đó phải khớp với project thật của bạn. Nên tôi cần hỏi ở dưới.
+### Vẫn còn nguyên
 
-### Được cải thiện bởi việc chọn C++
+**Hook chặn `Bash` không sạch.** Đoán câu lệnh shell ghi vào đâu là việc bẩn. Tôi chặn được dạng phổ biến, còn đường vòng tôi chưa nghĩ ra.
 
-**Rủi ro số 3 — "call graph sẽ sót" — nhẹ hơn hẳn nếu chọn C++**, vì có libclang. Đã giải thích ở ý 2.
+**Ép commit trước khi duyệt có thể phiền.** Phải dùng thật mới biết.
 
-### Không bị ảnh hưởng
-
-Rủi ro 1 (hook chặn `Bash` không sạch) và rủi ro 4 (ép commit trước khi duyệt có thể phiền) — không liên quan tới ngôn ngữ.
-
-### Rủi ro mới, sinh ra từ ý 4 của bạn
-
-**Phần `slice` và gói ngữ cảnh là phần tôi phải đoán nhiều nhất.**
-
-Sáu phần đầu dựa trên luật rõ ràng: bậc, mốc, hash, so sánh. Đúng sai kiểm chứng được ngay.
-
-Nhưng `slice` — chia một tính năng thành bao nhiêu sub-task, mỗi sub-task nhận bao nhiêu ngữ cảnh — **phụ thuộc vào cách bạn làm việc thực tế**, mà tôi chưa nhìn thấy bạn làm bao giờ. Đây là chỗ khả năng phải sửa lại sau khi dùng thật là cao nhất.
-
-Trước đây nó nằm ở "v0.2", tức là có thời gian dùng thử phần trước rồi mới thiết kế nó. Giờ không chia phiên bản nữa thì tôi xây nó sớm hơn, dựa trên phỏng đoán nhiều hơn.
-
-**Cách tôi giảm rủi ro:** để nó ở bước 7 trong thứ tự xây. Lúc đó bạn đã dùng 6 bước trước rồi, tôi đã nhìn thấy bạn làm việc thật, nên đoán sẽ sát hơn.
+**`slice` là phần tôi đoán nhiều nhất.** Bảy bước đầu dựa trên luật rõ ràng, đúng sai kiểm chứng ngay. Nhưng chia một tính năng thành bao nhiêu sub-task, mỗi cái nhận bao nhiêu ngữ cảnh — cái này phụ thuộc **cách bạn làm việc thực tế**, mà tôi chưa nhìn thấy bao giờ. Đặt ở bước 8 để lúc đó đã quan sát đủ.
 
 ---
 
-## Cần bạn quyết ba điều
+## Còn đúng một câu hỏi
 
-**1. Rust hay C++20/26?**
-Chọn theo sản phẩm của bạn, đừng chọn theo kidea. Nếu C++ thì tấm bản đồ chính xác hơn, nhưng đó không phải lý do đủ để đổi ngôn ngữ của cả sản phẩm.
+Hai câu về ngôn ngữ đã tự tan sau ý 2 của bạn. Còn lại:
 
-**2. Nếu chọn C++ thì có dùng CMake không?**
-Cần file `compile_commands.json` để bật động cơ đọc chính xác. CMake sinh ra nó bằng một dòng cấu hình. Nếu bạn dùng build system khác thì tôi phải xem có lấy được không.
+**Bố cục thư mục code dự kiến của bạn thế nào?**
 
-**3. Bố cục thư mục code dự kiến của bạn thế nào?**
-Cái này ảnh hưởng trực tiếp tới rủi ro số 2 ở trên. Bạn chỉ cần phác đại khái, kiểu:
+Chỉ cần phác đại khái, ví dụ:
 
 ```text
 project/
-├── CMakeLists.txt
 ├── src/
 ├── include/
 ├── tests/
 └── third_party/
 ```
 
-Có bản phác đó thì tôi viết đúng ranh giới bậc ngay từ đầu, đỡ phải sửa lắt nhắt.
+Có nó thì `init` sinh sẵn bảng ranh giới bậc đúng ngay từ đầu. **Nếu chưa biết thì cũng không sao** — `init` sinh bản mặc định theo ngôn ngữ, chỉnh sau trong file cấu hình.
 
-Trả lời xong ba câu này là tôi bắt đầu code bước 1.
+Không còn gì chặn nữa. Bạn nói **"bắt đầu đi"** là tôi code từ bước 1.

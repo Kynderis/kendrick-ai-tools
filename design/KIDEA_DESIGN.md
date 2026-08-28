@@ -94,12 +94,12 @@ Nếu **AI tự tay update** file index đó, nó sẽ lệch khỏi thực tế
 
 Bạn đã nói đúng từ khoá mà chưa khai thác hết: **Doxygen**. Doxygen không bắt ai duy trì file index. Nó **đọc source code có annotation rồi tự sinh index**. Đó mới là mô hình đúng.
 
-Nên `kidea` chia index thành hai lớp:
+Nên `kidea` chia index thành **ba tấm bản đồ** — nghiệp vụ, code, và cầu nối giữa hai bên. Chi tiết ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md) mục 5.
 
-**Lớp dẫn xuất — máy tự đọc, không ai viết:**
-call graph, import graph, ai gọi ai, ai bị ai gọi. Trích bằng parser (tree-sitter) từ chính source. Không thể sai, vì nếu code đổi thì lần chạy sau ra kết quả mới.
+**Tấm code — máy tự đọc, không ai viết:**
+ai gọi ai, ai bị ai gọi, file nào import file nào. Trích bằng parser từ chính source. Không thể sai, vì code đổi thì lần chạy sau ra kết quả mới.
 
-**Lớp ngữ nghĩa — con người/AI viết, nhưng viết *trong code*, không viết ra file riêng:**
+**Tấm cầu nối — AI viết khi nó code, nhưng viết *trong code*, không viết ra file riêng:**
 
 ```python
 # @kidea:feature FEAT-MVP-ORDER-LIMIT
@@ -133,7 +133,11 @@ Rồi `/kidea index` chạy script:
 4. Join lại thành `.kidea/graph.json`.
 5. Báo cáo lỗ hổng: BR không có code nào implement, code không khai báo BR nào, LT không có test nào cover, ID trỏ tới thứ không tồn tại.
 
-Lợi ích quyết định: annotation **nằm cạnh code**. Ai sửa hàm thì nhìn thấy annotation ngay trên đầu hàm. Một file index tách rời thì không ai nhìn thấy, nên không ai update.
+Trong kidea thì **AI viết toàn bộ code, kể cả annotation** — Human không gõ phím. Vậy annotation cũng do AI khai ra, sao lại tin được hơn một file index cũng do AI khai ra? Hai lý do:
+
+**Một — cùng một hành động.** AI viết hàm và viết annotation trong cùng một lần sửa, cùng một file. Không có bước thứ hai để quên. File index tách rời thì luôn có bước thứ hai.
+
+**Hai, và đây mới là lý do thật — máy đối chiếu chéo được.** Annotation không được tin vì "AI khai thì chắc đúng", mà vì kidea kiểm tra nó bằng hai tấm bản đồ còn lại: mọi `BR` phải có ít nhất một hàm khai `implements`; mọi hàm trong đường dẫn nghiệp vụ phải khai `implements`; mọi ID trong annotation phải tồn tại thật; hàm khai `implements BR-X` mà `BR-X` đã bị thay thế thì báo động. Một file index tách rời không có gì để đối chiếu, nên không kiểm được.
 
 Và câu hỏi *"sửa BR-BAL-003 thì ảnh hưởng những đâu"* trở thành **một truy vấn graph do script trả lời**, không phải một câu hỏi AI phải nhớ.
 
