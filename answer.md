@@ -1,336 +1,181 @@
 # Trả lời của Claude
 
-Ý 2 của bạn là một chỉnh sửa **đúng**, và nó làm thay đổi thiết kế. Ý 3 bổ sung một mảnh tôi thiếu hẳn. Đã cập nhật `design/KIDEA_SPEC.md`.
+Ba câu của bạn, rồi tôi tự soát lại và tìm ra một lỗ hổng lớn hơn cả ba.
 
 ---
 
-## Ý 2 — Bạn đúng, và tôi sai ở một chỗ quan trọng
+## Câu 1 — "Giao diện web" là gì?
 
-Bạn nói: *"Trong mô hình của Kidea thì Human không code đâu nhé"*. Tôi đã viết cả tài liệu như thể có người ngồi gõ annotation bằng tay. Sai.
+**Bạn không có ký ức về nó vì bạn chưa bao giờ nhắc tới nó. Tôi tự nghĩ ra.**
 
-Nhưng câu hỏi bạn đặt ra làm lộ một lỗ hổng thật trong lập luận của tôi, nên tôi phải trả lời cho tới nơi.
+Tôi liệt kê nó trong danh sách "những thứ tôi cắt" — nhưng nó chưa bao giờ nằm trong danh sách "những thứ sẽ làm". Đưa một thứ chưa ai đề nghị vào danh sách cắt chỉ tạo nhiễu. Lỗi của tôi, đã xoá khỏi tài liệu.
 
-### Lỗ hổng
+### Nhưng có một chỗ dễ nhầm, nói rõ luôn
 
-Tôi từng nói: *"index do AI kê khai thì không đáng tin hơn trí nhớ AI"*.
+Trong cuộc trò chuyện cũ với Codex có bàn nhiều về **dashboard**. Đó là **dashboard của SẢN PHẨM bạn**, hoàn toàn khác:
 
-Nhưng annotation `@kidea:implements BR-BAL-003` **cũng do AI khai**. Vậy tôi tự mâu thuẫn à?
-
-Không — nhưng lý do thật **không phải** là "ai gõ phím". Tôi nói nhầm chỗ nhấn mạnh. Lý do thật có hai điểm.
-
-### Điểm 1 — cùng một hành động, không có bước thứ hai để quên
-
-```mermaid
-flowchart LR
-    subgraph BAD["File index tách rời"]
-    A1["AI sửa code<br/>ở file A"] --> A2["AI phải NHỚ<br/>đi cập nhật file B"]
-    A2 -.->|"quên"| A3["Index sai<br/>không ai biết"]
-    end
-
-    subgraph GOOD["Annotation trong code"]
-    B1["AI sửa code và annotation<br/>cùng một chỗ, cùng lúc"] --> B2["Không có bước thứ hai"]
-    end
-```
-
-### Điểm 2 — quan trọng hơn: máy đối chiếu chéo được
-
-Annotation không được tin vì "AI khai thì chắc đúng". Nó được tin vì **kidea kiểm tra được nó bằng một nguồn khác**:
-
-| Luật kiểm tra | Bắt được lỗi gì |
-|---|---|
-| Mọi `BR` phải có ít nhất một hàm khai `implements` | Quy tắc chưa ai code |
-| Mọi hàm trong đường dẫn nghiệp vụ phải khai `implements` | AI code mà quên khai |
-| Mọi `LT` phải có ít nhất một test khai `covers` | Test case chưa có test code |
-| Mọi ID trong annotation phải tồn tại thật | AI bịa ra `BR-BAL-999` |
-| Hàm khai `implements BR-X` mà `BR-X` đã bị thay thế | Code chạy theo quy tắc hết hiệu lực |
-
-**Một file index tách rời không có gì để đối chiếu, nên không kiểm được.** Đó mới là khác biệt thật.
-
-### Và bạn đúng luôn về ngôn ngữ
-
-*"Vậy nên tôi nghĩ việc các hệ thống dùng ngôn ngữ lập trình nào thì cũng xử lý được thôi."*
-
-Đúng. Tôi đã bỏ hẳn phần "chọn C++ thì tốt hơn Rust". Lý do: **phần mang ý nghĩa nghiệp vụ đều do AI viết bằng chữ, không phụ thuộc ngôn ngữ.** Phần máy đọc chỉ trả lời "ai gọi ai" — thiếu vài cạnh thì mất một ít gợi ý, không làm hỏng luật gác cổng.
-
-Thiết kế mới có ba lớp, dùng lớp nào có sẵn:
-
-```mermaid
-flowchart TD
-    A["/kidea index"] --> B{"Có động cơ chính xác<br/>cho ngôn ngữ này?"}
-    B -- "Có" --> C["Dùng nó<br/>cạnh: chính xác"]
-    B -- "Không" --> D["tree-sitter<br/>cạnh: xấp xỉ"]
-    C --> E{"Còn chỗ máy<br/>không giải được?"}
-    D --> E
-    E -- "Có" --> F["Hỏi AI ĐÚNG CHỖ ĐÓ<br/>cạnh: AI suy luận"]
-    E -- "Không" --> G["Xong"]
-    F --> G
-```
-
-Lớp 3 chính là ý bạn nói *"hoặc các model AI làm được"*. Nhưng dùng đúng liều: **không bắt AI đọc cả codebase mỗi lần index** — 500 file mỗi lần thì vừa chậm, vừa tốn token, vừa có thể bịa. Chỉ hỏi khi máy bó tay, ví dụ một lời gọi qua interface không rõ trỏ đâu. Câu hỏi hẹp, câu trả lời kiểm chứng được.
-
-**Nguyên tắc phân công:**
-
-> **Máy** làm việc đếm được. **AI** làm việc hiểu được. **Human** quyết việc chọn được.
-
-Kết quả: **chọn ngôn ngữ theo sản phẩm của bạn.** Rust, C++, Go, TypeScript, Python, Java đều chạy. Hai câu hỏi tôi định hỏi bạn về ngôn ngữ đã tự tan.
-
----
-
-## Ý 3 — Ba tấm bản đồ. Bạn đã chỉ ra mảnh tôi thiếu hẳn.
-
-Bạn muốn ba tấm. Tôi trước đó gộp làm một, và **tấm số 1 thì tôi thiếu thật** — không chỉ gộp mà là chưa thiết kế.
-
-```mermaid
-flowchart LR
-    subgraph M1["BẢN ĐỒ 1 — NGHIỆP VỤ"]
-    A1["FEAT"] --> A2["BR"]
-    A2 --> A3["ENT<br/>thực thể"]
-    A2 -.->|"phụ thuộc<br/>thay thế"| A2
-    A4["INV"] --> A3
-    end
-    subgraph M3["BẢN ĐỒ 3 — CẦU NỐI"]
-    B1["BR ↔ hàm/file/module"]
-    end
-    subgraph M2["BẢN ĐỒ 2 — CODE"]
-    C1["hàm A"] -->|"gọi"| C2["hàm B"]
-    C3["file X"] -->|"import"| C4["file Y"]
-    end
-    M1 --> M3
-    M3 --> M2
-```
-
-### Bản đồ 1 — cái khó nhất, và chìa khoá là "thực thể"
-
-Ví dụ của bạn rất hay, tôi dùng luôn:
-
-> *Trước đây sàn chỉ có lệnh Market thì phần quản lý số dư chỉ cần số dư tổng. Nhưng giờ thêm lệnh Limit thì cần available và locked.*
-
-Tức là **thêm một tính năng làm hỏng một quy tắc đã có**. Làm sao máy phát hiện được?
-
-**Chìa khoá là một khái niệm mới: `ENT` — thực thể nghiệp vụ.** Đây là *danh từ* mà các quy tắc cùng động vào: số dư, lệnh, sổ lệnh, tài khoản.
-
-> Hai quy tắc **không biết nhau**, nhưng nếu **cùng ghi vào một thực thể** thì chúng liên quan tới nhau.
-
-Cụ thể với ví dụ của bạn:
-
-```yaml
-# Trước — chỉ có lệnh Market
-id: BR-BAL-001
-title: "Số dư là một con số tổng"
-writes: [ENT-BALANCE]
-
-# Sau — thêm lệnh Limit
-id: BR-BAL-002
-title: "Số dư tách thành khả dụng và bị giữ"
-writes: [ENT-BALANCE]
-supersedes: [BR-BAL-001]
-```
-
-kidea chạy `check` và lần ra toàn bộ chuỗi:
-
-```mermaid
-flowchart TD
-    A["BR-BAL-002 khai<br/>supersedes BR-BAL-001"] --> B["BR-BAL-001 chuyển STALE"]
-    C["Phát hiện thêm:<br/>BR-BAL-001 và BR-BAL-002<br/>CÙNG GHI ENT-BALANCE"] --> D["CẢNH BÁO xung đột:<br/>hai quy tắc tranh nhau<br/>một thực thể"]
-    B --> E["Mọi LT cover BR-BAL-001<br/>chuyển STALE"]
-    E --> F["Qua BẢN ĐỒ 3:<br/>mọi hàm khai implements BR-BAL-001<br/>chuyển IMPACT_REVIEW"]
-    F --> G["Qua BẢN ĐỒ 2:<br/>mọi hàm GỌI TỚI những hàm đó<br/>được liệt kê để kiểm tra"]
-    G --> H["/kidea change close TỪ CHỐI<br/>chừng nào còn sót"]
-```
-
-**Điểm hay nhất:** kể cả khi AI **quên khai** `supersedes`, luật *"hai quy tắc cùng ghi một thực thể"* vẫn bắt được. Đó là lý do `ENT` tồn tại — nó là **lưới an toàn khi khai báo trực tiếp bị bỏ sót**.
-
-### Ba tấm nối lại thành một chuỗi
-
-Đây là toàn bộ giá trị:
-
-```mermaid
-flowchart LR
-    A["BR-BAL-001<br/>đổi"] -->|"bản đồ 1"| B["BR-BAL-002<br/>cùng ghi ENT-BALANCE"]
-    A -->|"bản đồ 1"| C["LT-ORDER-0042<br/>0043, 0051"]
-    A -->|"bản đồ 3"| D["reserve_balance()"]
-    D -->|"bản đồ 2"| E["place_order()<br/>risk_precheck()"]
-    C -->|"bản đồ 3"| F["test_reserve_locks()"]
-```
-
-Gõ `/kidea impact BR-BAL-001` là đi hết cả ba, in ra một danh sách duy nhất.
-
-### Ba tấm, ba nguồn, ba người tạo
-
-| Bản đồ | Nguồn | Ai tạo | Kiểm chứng bằng gì |
-|---|---|---|---|
-| 1 — nghiệp vụ | Frontmatter trong tài liệu | **AI viết** khi soạn nghiệp vụ | Human **duyệt** ở trạm requirements |
-| 2 — code | Máy đọc source | **Máy**, không ai can thiệp | Không cần, nó là sự thật |
-| 3 — cầu nối | Annotation trong code | **AI viết** khi nó code | Máy đối chiếu với 1 và 2 |
-
-### Vì sao ba file thay vì một
-
-| Bản đồ | Dựng lại khi nào | Chi phí |
+| | Dashboard của sản phẩm | "Giao diện web" tôi vừa cắt |
 |---|---|---|
-| 1 — nghiệp vụ | Tài liệu đổi | Rẻ |
-| 2 — code | Code đổi | Đắt nhất |
-| 3 — cầu nối | Code đổi | Rẻ |
+| Là gì | Admin Console, Ops Dashboard, Business Dashboard của sàn giao dịch | Một trang web để xem trạng thái kidea |
+| Ai dùng | Nhân viên vận hành sàn của bạn | Bạn, khi muốn xem project đang ở trạm nào |
+| Còn không | **Còn.** Nó là tính năng của sản phẩm, kidea quản lý nó như mọi tính năng khác | Không. Chưa từng có |
 
-Tách ra thì dựng lại được từng cái, và trả lời được câu **"tấm nào đang cũ"**. Gộp một file thì không biết phần nào cũ.
-
----
-
-## Ý 4 — Giữ và cắt cái gì, nói bằng "bạn gõ gì, nó làm gì"
-
-Trước tôi chỉ liệt kê tên lệnh. Nói lại theo kiểu cụ thể.
-
-### `/kidea slice` — có phải giống "/goal" không?
-
-**Gần đúng, nhưng khác ở bốn chỗ.** Đúng là bạn giao mục tiêu "làm xong tính năng đặt lệnh Limit" và AI tự chạy. Nhưng:
-
-| | AI chạy tự do | `/kidea slice` |
-|---|---|---|
-| Đụng được file nào | Bất kỳ file nào | **Chỉ những file đã khai trước** |
-| Ngữ cảnh | Cùng một context, càng dài càng loãng | **Mỗi sub-task một context sạch** |
-| Kết thúc | AI tự nói "xong rồi" | **Human phải gõ `approve`** |
-| Nếu chưa đủ điều kiện | Cứ làm | **Bị chặn từ đầu** |
-
-Ba bước:
-
-```text
-/kidea slice start FEAT-MVP-ORDER-LIMIT
-    → Kiểm tra tính năng đã qua trạm chưa
-    → Khai báo: slice này chỉ được đụng src/balance/, src/order/
-    → Mở khoá đúng những đường dẫn đó
-
-/kidea slice plan FEAT-MVP-ORDER-LIMIT
-    → AI chia thành sub-task
-    → Mỗi sub-task nhận gói ngữ cảnh tính từ ba bản đồ
-    → Mỗi sub-task chạy trong 1 subagent, context sạch
-
-/kidea slice verify FEAT-MVP-ORDER-LIMIT
-    → Chạy test
-    → Kiểm tra mọi LT đều có test cover
-    → Kiểm tra code mới có annotation
-    → Báo cáo. KHÔNG tự duyệt.
-```
-
-### Bốn lệnh còn lại tôi giữ, và vì sao
-
-**`/kidea change bug "Lệnh bị tạo trùng sau khi retry"`**
-
-Sinh một hồ sơ việc `CHANGE-2026-0043`. Từ lúc này mọi thứ AI sửa đều đóng dấu hồ sơ đó.
-
-*Thiếu nó thì hỏng gì?* Đây chính là ý *"mỗi lần sửa đổi kèm version của session đang sửa"* trong draft của bạn. Không có hồ sơ thì cái dấu không trỏ vào đâu cả, và câu *"phần này đã cập nhật cho lần sửa hiện tại chưa"* không trả lời được. **Đây là thứ làm cho cơ chế "làm đến cùng" chạy được.**
-
-Và `/kidea change close` **từ chối đóng nếu còn chỗ chưa đồng bộ**.
-
-**`/kidea impact BR-BAL-003`** — đổi quy tắc này thì ảnh hưởng đâu. Đi xuyên ba bản đồ.
-
-**`/kidea adopt`** — bạn có project cũ chưa dùng kidea, lệnh này quét code, dựng bản đồ 2, liệt kê chỗ thiếu tài liệu. **Không bịa nghiệp vụ**, chỉ vẽ lại cái đang có và chỉ ra lỗ hổng.
-
-**Trạm `release`** — trạm cuối, kiểm đủ mọi approval trước khi lên production. Chỉ là thêm một trạm vào bộ máy sẵn có, gần như không tốn gì.
-
-### Bốn thứ tôi cắt, và cắt vì sao
-
-| Cắt | Nếu làm thì nó sẽ làm gì | Vì sao không cần |
-|---|---|---|
-| `/kidea next` | AI tự chọn bước hợp lệ kế tiếp rồi làm | `/kidea status` đã in ra "bước tiếp theo là gì". Thêm lệnh này chỉ đỡ phải gõ, không thêm khả năng nào |
-| Giao diện web | Trang web xem trạng thái project | Mọi thứ đã là file text, đọc bằng editor hoặc mở thẳng trên GitHub từ điện thoại. Thêm web là thêm một thứ phải nuôi |
-| Tự động deploy | kidea tự đẩy code lên server | kidea **gác** deploy — kiểm đủ approval chưa. Việc đẩy vẫn do script/CI của bạn. Viết lại công cụ deploy là vẽ thêm việc |
-| Bộ chạy test riêng | kidea tự có cơ chế chạy test | Nó chỉ gọi đúng câu lệnh bạn khai (`ctest`, `cargo test`, `npm test`) rồi đọc kết quả |
-
-**Còn lại 9 lệnh:** `init` · `status` · `check` · `index` · `approve` · `impact` · `change` · `slice` · `adopt`
+Dashboard sản phẩm vẫn nguyên vẹn trong kế hoạch, vẫn có `FEAT-*`, vẫn đi qua đủ các trạm.
 
 ---
 
-## Ý 5 — "Thứ tự code" nghĩa là gì
+## Câu 2 — Đặt tên cho ba bản đồ
 
-Tôi viết tắt quá. Nói lại thật đơn giản.
+Bạn đúng, "bản đồ 1, 2, 3" thì ai nhớ nổi. Đã đổi tên trong toàn bộ tài liệu:
 
-### Vấn đề rất tầm thường
+| Tên | File | Trả lời câu hỏi |
+|---|---|---|
+| **Bản đồ NGHIỆP VỤ** | `map-business.json` | *Đổi luật này thì luật nào lung lay?* |
+| **Bản đồ CODE** | `map-code.json` | *Sửa hàm này thì ai gọi nó?* |
+| **Bản đồ CẦU NỐI** | `map-link.json` | *Luật này nằm ở đoạn code nào?* |
 
-kidea gồm khoảng 12 file Python. **Tôi không viết được 12 file cùng một lúc.** Phải viết file nào trước, file nào sau.
+Từ giờ không còn số nữa.
 
-"Thứ tự code" chỉ có nghĩa là: **tôi viết cái nào trước.** Không có gì phức tạp hơn.
+---
 
-### Nhưng thứ tự nào cũng được à?
+## Câu 3 — "Bố cục thư mục" là hỏi cái nào?
 
-Không. Và đây mới là ý tôi muốn nói.
+Tôi hỏi mập mờ. **Ý tôi là thư mục của PROJECT bạn sẽ xây bằng kidea** — ví dụ sàn giao dịch — chứ không phải thư mục của kidea.
 
-Nếu tôi viết hết 12 file rồi mới đưa bạn xem, mà **ý tưởng cốt lõi sai**, thì mất trắng nhiều tuần.
+Lý do hỏi: người gác cần biết `src/` là bậc 5, `docs/requirements/` là bậc 2. Bảng đó phụ thuộc bố cục project.
 
-Nên tôi sắp thứ tự theo một tiêu chí duy nhất: **sau mỗi bước, bạn tự tay thử được cái gì.**
+**Nhưng câu này không còn chặn nữa.** Tôi đã cho bảng ranh giới vào file cấu hình `kidea.yaml`, `init` sinh sẵn bản mặc định theo ngôn ngữ, bạn chỉnh sau khi thấy project thật. Rút câu hỏi.
 
-### Bảng: mỗi bước xong, bạn làm được gì
+---
 
-| # | Tôi viết gì | Xong thì **bạn tự tay làm được** |
+## Bây giờ tới phần bạn nói đúng: "còn quá nhiều thứ mơ hồ"
+
+Tôi rà lại toàn bộ đặc tả. Có **10 chỗ tôi viết cho có, chưa phải cơ chế thật**. Đã chốt hết trong `KIDEA_SPEC.md` mục 15. Ba chỗ đáng để bạn biết:
+
+### Chỗ mơ hồ 1 — mâu thuẫn thật trong thiết kế của tôi
+
+Tôi nói *"mốc lên khi MỌI tính năng MVP qua trạm"*. Nhưng tôi cũng nói *"làm theo vertical slice, từng tính năng một"*.
+
+**Hai câu này chửi nhau.** Nếu phải đợi cả 8 tính năng MVP xong nghiệp vụ, xong test, xong UX, xong kiến trúc rồi mới được code — thì đó là waterfall, đúng thứ tôi bảo là sai.
+
+**Cắt đôi để giải quyết:**
+
+| Bậc | Cách tính mốc | Vì sao |
 |:---:|---|---|
-| 1 | Cuốn sổ + bộ test | Chưa gì cả. Nền móng |
-| 2 | **Người gác + hook** | **Bạn bảo tôi "code phần Market đi", và xem tôi bị chặn** |
-| 3 | `init` + `status` | Đưa tài liệu ChatGPT thật vào, xem kidea báo thiếu gì |
-| 4 | `check` + `approve` | Duyệt 1 trạm, rồi sửa tài liệu, xem approval bị thu hồi |
-| 5 | **Bản đồ 1 + `impact` nghiệp vụ** | **Hỏi "đổi quy tắc số dư thì quy tắc nào liên quan"** |
-| 6 | Bản đồ 2 + 3 | Hỏi "đổi quy tắc này thì code nào phải sửa" |
-| 7 | `change` | Mở việc sửa, xem kidea không cho đóng khi còn sót |
-| 8 | `slice` + gói ngữ cảnh | Làm trọn 1 tính năng, mỗi sub-task context sạch |
-| 9 | `adopt` | Kéo project cũ vào |
-| 10 | Chạy thật | Tìm chỗ sai |
+| 1 → 4 (tài liệu) | **Cả project.** Mọi tính năng MVP phải qua | Kiến trúc cắt ngang mọi tính năng. Thiết kế kiến trúc khi còn nửa số nghiệp vụ chưa rõ là thiết kế sai |
+| 5 (code) | **Từng tính năng.** `slice start` mở riêng | Kiến trúc chốt rồi thì mỗi tính năng code độc lập được |
 
-### Hai bước quan trọng nhất
+Vẫn giữ được điều bạn muốn từ đầu — *một tính năng MVP chưa rõ thì chặn cả flow* — mà không biến giai đoạn code thành waterfall.
 
-**Bước 2** — chứng minh ý tưởng gốc có thật không: *script chặn được AI, chứ không phải lời dặn chặn AI*. Nếu cái này không chạy thì cả thiết kế phải nghĩ lại, và tôi muốn biết sau vài ngày chứ không phải sau vài tuần.
+### Chỗ mơ hồ 2 — "chỉ Human mới duyệt" thực ra ép bằng cách nào?
 
-**Bước 5** — chứng minh bản đồ nghiệp vụ trả lời đúng câu bạn cần ở ý 3. Đây là mảnh mới nhất nên cũng rủi ro nhất.
+Tôi từng viết *"script kiểm tra một dấu hiệu do lệnh đó đặt ra"*. Đọc lại thì đó là nói cho có, không phải cơ chế.
+
+Vì AI chạy được lệnh shell. Nó hoàn toàn có thể tự gõ `python kidea.py approve` để tự duyệt cho mình.
+
+**Cơ chế thật, hai lớp:**
+
+```mermaid
+flowchart TD
+    A["Có ai đó gọi approve"] --> B{"Đầu vào có phải<br/>bàn phím thật không?"}
+    B -- "Có — Human gõ trong terminal" --> C["Hỏi xác nhận<br/>Human trả lời<br/>→ DUYỆT"]
+    B -- "Không — AI gọi qua Bash" --> D["AI không trả lời được<br/>vì không có bàn phím<br/>→ TỪ CHỐI"]
+```
+
+Công cụ Bash mà AI dùng chạy **không có terminal**, đầu vào nối vào thiết bị rỗng. Nên lệnh `approve` chỉ cần hỏi một câu xác nhận và đòi đọc từ terminal thật — **AI không có cách nào trả lời**.
+
+Lớp thứ hai: người gác chặn luôn lệnh Bash khớp mẫu gọi `approve`, để AI nhận thông báo rõ ràng thay vì gặp lỗi khó hiểu.
+
+Lớp 1 mới là lớp thật. Nó không dựa vào việc AI có chịu nghe lời hay không.
+
+### Chỗ mơ hồ 3 — xoá một quy tắc thì sao?
+
+Chưa nói bao giờ. Chốt: **ID không bao giờ được dùng lại, không bao giờ đánh số lại.**
+
+Xoá một quy tắc thì nó chuyển `status: retired` và **nằm nguyên tại chỗ**. Vì code và test cũ vẫn có thể còn trỏ tới nó, và ta cần biết chúng đang trỏ vào một thứ đã chết — chứ không phải trỏ vào hư không.
+
+### Bảy chỗ còn lại
+
+File dùng chung nhiều tính năng · định nghĩa "đường dẫn nghiệp vụ" · git và nhánh · hai phiên chạy cùng lúc · gói ngữ cảnh trông thế nào · tài liệu tiếng Việt lẫn ID tiếng Anh · nếu `check` báo lỗi mà muốn đi tiếp. Đều đã chốt trong `KIDEA_SPEC.md` mục 15.
 
 ---
 
-## Ý 6 — Những chỗ có thể sai, sau khi cập nhật
+## Nhưng lỗ hổng lớn nhất thì khác — và nó lớn hơn cả 10 chỗ trên
 
-Bạn đoán đúng, cập nhật ở trên làm thay đổi danh sách này.
+Rà xong tôi mới thấy điều này, và nó giải thích vì sao bạn thấy mơ hồ:
 
-### Biến mất
+> **Toàn bộ những gì tôi viết đến giờ là đặc tả BỘ MÁY. Chưa có một dòng nào về CÔNG VIỆC.**
 
-**Rủi ro "call graph Rust sẽ sót"** — không còn quan trọng nữa. Sau ý 2 của bạn, luật gác cổng chỉ dựa trên bản đồ 1 và 3, mà cả hai đều là chữ do AI viết. Bản đồ 2 thiếu vài cạnh thì chỉ mất một ít gợi ý.
+| | Đã có | Chưa có |
+|---|---|---|
+| **Bộ máy** | Cuốn sổ, người gác, ba bản đồ, chín lệnh, luật băm và lan truyền | — |
+| **Công việc** | — | AI thực sự **làm gì** ở mỗi trạm |
 
-**Rủi ro "ranh giới bậc quá thô"** — đã hạ xuống. Tôi cho bảng ranh giới nằm trong file cấu hình để bạn chỉnh, thay vì cắm cứng trong code.
+Cụ thể: tôi nói *"AI audit nghiệp vụ"* rất nhiều lần, nhưng chưa bao giờ nói **audit nghĩa là gì**. Kiểm theo danh sách nào? Thế nào là "đủ rõ"? Tài liệu ra trông ra sao?
 
-### Xuất hiện — và đây là rủi ro lớn nhất hiện giờ
+Phần đó chiếm **90% thời gian chạy thật**. Đọc hết đặc tả cũ, bạn vẫn không biết `/kidea` thực sự tạo ra cái gì.
 
-**AI khai `ENT` không nhất quán.**
+Nên tôi viết thêm `design/KIDEA_STATIONS.md`.
 
-Bản đồ 1 chỉ mạnh khi AI gọi cùng một thứ bằng cùng một tên. Nếu chỗ này viết `ENT-BALANCE`, chỗ kia viết `ENT-USER-BALANCE`, thì máy tưởng là hai thực thể khác nhau, và **lưới an toàn thủng ngay**.
+### Trong đó có gì
+
+**Một luật chống AI tự chấm điểm mình.** Đây là phần tôi thấy quan trọng nhất. AI có động cơ tự nhiên là muốn qua trạm — để nó vừa viết vừa tự chấm thì nó tick hết ô cho xong. Bốn lớp chống:
 
 ```mermaid
-flowchart LR
-    A["BR-BAL-001<br/>writes: ENT-BALANCE"] --> C{"Máy so tên"}
-    B["BR-BAL-002<br/>writes: ENT-USER-BALANCE"] --> C
-    C --> D["Tên khác nhau<br/>→ tưởng không liên quan<br/>→ KHÔNG cảnh báo"]
+flowchart TD
+    A["AI soạn tài liệu"] --> B["AI điền danh sách soát<br/>MỖI DÒNG PHẢI TRÍCH<br/>câu cụ thể trong tài liệu"]
+    B --> C["Subagent AUDIT chạy riêng<br/>context sạch, KHÔNG thấy<br/>cuộc trò chuyện lúc soạn"]
+    C --> D["Script kiểm máy móc:<br/>mục được trích có thật không,<br/>ID có thật không"]
+    D --> E["Human đọc bảng soát<br/>kèm trích dẫn, rồi quyết"]
 ```
 
-**Cách tôi chống:** danh sách `ENT` được **chốt sớm ở trạm `scope` và Human duyệt**. Sau đó `check` **từ chối** bất kỳ `ENT` lạ nào không có trong danh sách. Muốn thêm thực thể mới thì phải quay lại trạm `scope`, và bạn nhìn thấy.
+Lớp 2 là chỗ Claude Code làm được mà Codex không: **người soát không phải người soạn**. Subagent audit chỉ nhận tài liệu, không thấy cuộc trò chuyện lúc viết ra nó, nhiệm vụ là **tìm lỗ hổng** chứ không phải bảo vệ.
 
-### Vẫn còn nguyên
+**Trạm SCOPE và REQUIREMENTS viết đầy đủ.** Riêng trạm REQUIREMENTS có một **danh sách 21 dòng soát** — đây chính là định nghĩa cụ thể của "nghiệp vụ đủ rõ".
 
-**Hook chặn `Bash` không sạch.** Đoán câu lệnh shell ghi vào đâu là việc bẩn. Tôi chặn được dạng phổ biến, còn đường vòng tôi chưa nghĩ ra.
+Ví dụ tài liệu chỉ viết *"Người dùng nhập giá và số lượng rồi gửi lệnh"*, subagent audit phải bật ra được:
 
-**Ép commit trước khi duyệt có thể phiền.** Phải dùng thật mới biết.
+| Dòng | Câu hỏi chưa trả lời |
+|:--:|---|
+| 3 | Số dư kiểm tra tại thời điểm nào |
+| 8 | Số dư có bị giữ khi lệnh được nhận không |
+| 5 | Giá Limit vượt giá bán tốt nhất thì khớp ngay hay nằm chờ |
+| 15 | Hai request trùng `client_order_id` thì sao |
+| 15 | Timeout nhưng lệnh đã tạo thật thì retry thế nào |
+| 14 | Số dư đổi đồng thời do lệnh khác thì kết quả thế nào |
 
-**`slice` là phần tôi đoán nhiều nhất.** Bảy bước đầu dựa trên luật rõ ràng, đúng sai kiểm chứng ngay. Nhưng chia một tính năng thành bao nhiêu sub-task, mỗi cái nhận bao nhiêu ngữ cảnh — cái này phụ thuộc **cách bạn làm việc thực tế**, mà tôi chưa nhìn thấy bao giờ. Đặt ở bước 8 để lúc đó đã quan sát đủ.
+Mỗi câu thành một blocker, kèm đề xuất của AI, **chờ bạn quyết**.
+
+**Danh sách soát thay đổi theo mức rủi ro.** Tính năng rủi ro thấp được bỏ qua vài dòng — nhưng phải kèm lý do. Tính năng dính tiền thì bốn dòng là **bắt buộc, không được bỏ qua kể cả có lý do**: đồng thời · trùng lặp và gửi lại · giới hạn và độ chính xác · ghi vết.
+
+Đây là chỗ dòng `handles_money: true` trong cấu hình thực sự có tác dụng, thay vì chỉ là một dòng trang trí.
+
+### Năm trạm còn lại tôi cố ý viết mỏng
+
+`logical_tests` · `ux` · `architecture` · `implementation` · `release` mới ở mức khung.
+
+**Cố ý.** Chi tiết hoá chúng bây giờ là viết dựa trên phỏng đoán về một project chưa tồn tại — đúng cái lỗi mà kidea sinh ra để chống. Chi tiết hoá dần khi đi tới.
 
 ---
 
 ## Còn đúng một câu hỏi
 
-Hai câu về ngôn ngữ đã tự tan sau ý 2 của bạn. Còn lại:
+**Danh sách 21 dòng soát ở trạm REQUIREMENTS có thiếu gì không?**
 
-**Bố cục thư mục code dự kiến của bạn thế nào?**
+| # | Mục | | # | Mục |
+|:--:|---|---|:--:|---|
+| 1 | Mục tiêu | | 12 | Quyền hạn |
+| 2 | Actor | | 13 | Trường hợp lỗi và cách xử lý |
+| 3 | Điều kiện trước | | 14 | Đồng thời |
+| 4 | Đầu vào, đầu ra | | 15 | Trùng lặp, gửi lại, timeout |
+| 5 | Luồng chính | | 16 | Giới hạn min/max, độ chính xác số |
+| 6 | Luồng thay thế | | 17 | Trường hợp biên |
+| 7 | Kiểm tra dữ liệu vào | | 18 | Phụ thuộc |
+| 8 | Quy tắc nghiệp vụ | | 19 | Ghi vết |
+| 9 | Máy trạng thái | | 20 | Tiêu chí nghiệm thu |
+| 10 | Bất biến | | 21 | Câu hỏi còn mở |
+| 11 | Thực thể đọc/ghi | | | |
 
-Chỉ cần phác đại khái, ví dụ:
+Đây là câu duy nhất tôi cần trước khi code, vì nó định nghĩa "thế nào là nghiệp vụ đủ rõ" — thứ chi phối chất lượng mọi thứ phía sau.
 
-```text
-project/
-├── src/
-├── include/
-├── tests/
-└── third_party/
-```
-
-Có nó thì `init` sinh sẵn bảng ranh giới bậc đúng ngay từ đầu. **Nếu chưa biết thì cũng không sao** — `init` sinh bản mặc định theo ngôn ngữ, chỉnh sau trong file cấu hình.
-
-Không còn gì chặn nữa. Bạn nói **"bắt đầu đi"** là tôi code từ bước 1.
+**Bạn làm sàn giao dịch, bạn biết chỗ nào hay sập mà tôi không biết.** Thiếu gì thì thêm vào; không thiếu thì nói **"danh sách đủ rồi"**.

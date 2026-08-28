@@ -85,9 +85,9 @@ kendrick-ai-tools-claude/
     │   ├── kidea.py            # điểm vào duy nhất
     │   ├── state.py            # đọc/ghi cuốn sổ
     │   ├── guard.py            # logic người gác
-    │   ├── map_business.py     # dựng bản đồ 1
-    │   ├── map_code.py         # dựng bản đồ 2
-    │   ├── map_link.py         # dựng bản đồ 3
+    │   ├── map_business.py     # dựng bản đồ NGHIỆP VỤ
+    │   ├── map_code.py         # dựng bản đồ CODE
+    │   ├── map_link.py         # dựng bản đồ CẦU NỐI
     │   ├── impact.py           # đi xuyên ba bản đồ
     │   ├── hashing.py
     │   ├── contextpack.py
@@ -104,9 +104,9 @@ project-root/
 ├── .kidea/
 │   ├── kidea.yaml          # Human sở hữu, cấu hình
 │   ├── state.yaml          # Script sở hữu, cuốn sổ trạng thái
-│   ├── map-business.json   # Bản đồ 1 — nghiệp vụ
-│   ├── map-code.json       # Bản đồ 2 — source code
-│   ├── map-link.json       # Bản đồ 3 — cầu nối
+│   ├── map-business.json   # bản đồ NGHIỆP VỤ
+│   ├── map-code.json       # bản đồ CODE
+│   ├── map-link.json       # bản đồ CẦU NỐI
 │   └── log.jsonl           # Sổ bằng chứng
 ├── .claude/
 │   ├── settings.json
@@ -128,7 +128,7 @@ project_name: "san-crypto"
 language:
   primary: cpp                  # cpp | rust | go | ts | python | java | ...
   test_command: "ctest --test-dir build"
-  precise_engine:               # tuỳ chọn, chỉ để tăng độ chính xác bản đồ 2
+  precise_engine:               # tuỳ chọn, chỉ để tăng độ chính xác bản đồ CODE
     kind: libclang
     compile_commands: "build/compile_commands.json"
 
@@ -224,18 +224,18 @@ features:
 
 ```mermaid
 flowchart LR
-    subgraph M1["BẢN ĐỒ 1 — NGHIỆP VỤ"]
+    subgraph M1["BẢN ĐỒ NGHIỆP VỤ"]
     A1["FEAT"] --> A2["BR"]
     A2 --> A3["ENT<br/>thực thể"]
     A2 -.->|"phụ thuộc<br/>thay thế"| A2
     A4["INV"] --> A3
     end
 
-    subgraph M3["BẢN ĐỒ 3 — CẦU NỐI"]
+    subgraph M3["BẢN ĐỒ CẦU NỐI"]
     B1["BR ↔ hàm/file/module"]
     end
 
-    subgraph M2["BẢN ĐỒ 2 — CODE"]
+    subgraph M2["BẢN ĐỒ CODE"]
     C1["hàm A"] -->|"gọi"| C2["hàm B"]
     C3["file X"] -->|"import"| C4["file Y"]
     end
@@ -244,7 +244,7 @@ flowchart LR
     M3 --> M2
 ```
 
-### 5.1. Bản đồ 1 — nghiệp vụ: logic liên quan logic
+### 5.1. Bản đồ NGHIỆP VỤ — luật nào liên quan luật nào
 
 Đây là tấm bạn nêu trong ý 3, và là tấm tôi thiếu hẳn ở bản trước.
 
@@ -296,8 +296,8 @@ flowchart TD
     A["BR-BAL-002 khai<br/>supersedes BR-BAL-001"] --> B["BR-BAL-001 chuyển STALE"]
     C["Phát hiện thêm:<br/>BR-BAL-001 và BR-BAL-002<br/>cùng ghi ENT-BALANCE"] --> D["CẢNH BÁO xung đột<br/>hai quy tắc tranh nhau<br/>một thực thể"]
     B --> E["Mọi LT cover BR-BAL-001<br/>chuyển STALE"]
-    E --> F["Qua BẢN ĐỒ 3:<br/>mọi hàm khai implements BR-BAL-001<br/>chuyển IMPACT_REVIEW"]
-    F --> G["Qua BẢN ĐỒ 2:<br/>mọi hàm GỌI TỚI những hàm đó<br/>được liệt kê để kiểm tra"]
+    E --> F["Qua BẢN ĐỒ CẦU NỐI:<br/>mọi hàm khai implements BR-BAL-001<br/>chuyển IMPACT_REVIEW"]
+    F --> G["Qua BẢN ĐỒ CODE:<br/>mọi hàm GỌI TỚI những hàm đó<br/>được liệt kê để kiểm tra"]
     G --> H["/kidea change close TỪ CHỐI<br/>chừng nào còn sót"]
 ```
 
@@ -315,7 +315,7 @@ flowchart TD
 | `LT → BR` | Test bao phủ quy tắc | Phát hiện quy tắc chưa có test |
 | `UX → BR` | Màn hình thể hiện quy tắc | Nghiệp vụ đổi thì màn hình phải xem lại |
 
-### 5.2. Bản đồ 2 — source code: ai gọi ai
+### 5.2. Bản đồ CODE — hàm nào gọi hàm nào
 
 **Vấn đề nó giải:** sửa một hàm, phải biết hàm nào gọi nó để test cho trọn.
 
@@ -336,7 +336,7 @@ Nguồn: **máy đọc code**, hoàn toàn tự động, không ai khai báo.
 
 Tấm này **không cần ai duyệt** vì nó không phải ý kiến — nó là sự thật đọc ra từ code. Sai duy nhất có thể xảy ra là **thiếu**, không phải sai. Xem mục 7.
 
-### 5.3. Bản đồ 3 — cầu nối: logic nằm ở code nào
+### 5.3. Bản đồ CẦU NỐI — luật nào nằm ở code nào
 
 **Vấn đề nó giải:** *"logic này được xử lý bởi file/function/module nào"* — câu hỏi bạn nêu trong ý 3.
 
@@ -366,11 +366,11 @@ TEST(BalanceTest, ReserveLocksAtomically) { }
 
 ```mermaid
 flowchart LR
-    A["BR-BAL-001<br/>đổi"] -->|"bản đồ 1"| B["BR-BAL-002<br/>cùng ghi ENT-BALANCE"]
-    A -->|"bản đồ 1"| C["LT-ORDER-0042<br/>0043, 0051"]
-    A -->|"bản đồ 3"| D["reserve_balance()"]
-    D -->|"bản đồ 2"| E["place_order()<br/>risk_precheck()"]
-    C -->|"bản đồ 3"| F["test_reserve_locks()"]
+    A["BR-BAL-001<br/>đổi"] -->|"bản đồ NGHIỆP VỤ"| B["BR-BAL-002<br/>cùng ghi ENT-BALANCE"]
+    A -->|"bản đồ NGHIỆP VỤ"| C["LT-ORDER-0042<br/>0043, 0051"]
+    A -->|"bản đồ CẦU NỐI"| D["reserve_balance()"]
+    D -->|"bản đồ CODE"| E["place_order()<br/>risk_precheck()"]
+    C -->|"bản đồ CẦU NỐI"| F["test_reserve_locks()"]
 ```
 
 `/kidea impact BR-BAL-001` đi hết cả ba và in ra một danh sách duy nhất.
@@ -379,9 +379,9 @@ flowchart LR
 
 | Bản đồ | Dựng lại khi nào | Chi phí |
 |---|---|---|
-| 1 — nghiệp vụ | Tài liệu đổi | Rẻ, vài trăm file markdown |
-| 2 — code | Code đổi | Đắt nhất, phải đọc toàn bộ source |
-| 3 — cầu nối | Code đổi | Rẻ, chỉ quét comment |
+| NGHIỆP VỤ | Tài liệu đổi | Rẻ, vài trăm file markdown |
+| CODE | Code đổi | Đắt nhất, phải đọc toàn bộ source |
+| CẦU NỐI | Code đổi | Rẻ, chỉ quét comment |
 
 Tách ra thì dựng lại được từng cái, và trả lời được câu **"tấm nào đang cũ"** — nếu gộp một file thì không biết phần nào cũ.
 
@@ -395,9 +395,9 @@ Trong kidea, **Human không viết code, cũng không viết annotation.** AI vi
 
 | Thứ | Ai tạo | Kiểm chứng bằng gì |
 |---|---|---|
-| Bản đồ 1 — nghiệp vụ | **AI viết** frontmatter khi soạn tài liệu | Human **duyệt** ở trạm requirements |
-| Bản đồ 2 — code | **Máy đọc**, không ai can thiệp | Không cần — nó là sự thật |
-| Bản đồ 3 — cầu nối | **AI viết** annotation khi code | Máy đối chiếu chéo, xem dưới |
+| NGHIỆP VỤ — nghiệp vụ | **AI viết** frontmatter khi soạn tài liệu | Human **duyệt** ở trạm requirements |
+| CODE — code | **Máy đọc**, không ai can thiệp | Không cần — nó là sự thật |
+| CẦU NỐI — cầu nối | **AI viết** annotation khi code | Máy đối chiếu chéo, xem dưới |
 
 ### Vì sao tin được thứ chính AI khai ra
 
@@ -426,10 +426,10 @@ Annotation không được tin vì "AI khai thì chắc đúng". Nó được ti
 | Mọi `BR` phải có ít nhất một symbol khai `implements` | Quy tắc chưa ai code |
 | Mọi symbol trong đường dẫn nghiệp vụ phải khai `implements` | AI code mà quên khai |
 | Mọi `LT` phải có ít nhất một test khai `covers` | Test case chưa có test code |
-| Mọi ID trong annotation phải tồn tại thật trong bản đồ 1 | AI bịa ra `BR-BAL-999` |
+| Mọi ID trong annotation phải tồn tại thật trong bản đồ NGHIỆP VỤ | AI bịa ra `BR-BAL-999` |
 | Symbol khai `implements BR-X` nhưng `BR-X` đã `supersedes` | Code đang chạy theo quy tắc hết hiệu lực |
 
-Bốn luật đầu **đối chiếu bản đồ 3 với bản đồ 1 và 2**. Một file index tách rời không có gì để đối chiếu, nên không kiểm được. Đó mới là khác biệt thật, chứ không phải chuyện ai gõ phím.
+Bốn luật đầu **đối chiếu bản đồ CẦU NỐI với bản đồ NGHIỆP VỤ và CODE**. Một file index tách rời không có gì để đối chiếu, nên không kiểm được. Đó mới là khác biệt thật, chứ không phải chuyện ai gõ phím.
 
 ### Phân công giữa máy và AI
 
@@ -448,7 +448,7 @@ Nguyên tắc: **máy làm việc đếm được, AI làm việc hiểu đượ
 
 Bản trước tôi nói chọn C++ thì bản đồ chính xác hơn Rust. **Đúng về kỹ thuật nhưng sai về mức độ quan trọng** — bạn đã chỉ ra điều đó.
 
-Lý do nó không quan trọng: **phần mang ý nghĩa nghiệp vụ nằm ở bản đồ 1 và 3, mà cả hai đều do AI viết ra bằng chữ, không phụ thuộc ngôn ngữ.** Bản đồ 2 chỉ trả lời "ai gọi ai" — thiếu vài cạnh thì mất một ít gợi ý, không làm hỏng luật gác cổng.
+Lý do nó không quan trọng: **phần mang ý nghĩa nghiệp vụ nằm ở bản đồ NGHIỆP VỤ và CẦU NỐI, mà cả hai đều do AI viết ra bằng chữ, không phụ thuộc ngôn ngữ.** Bản đồ CODE chỉ trả lời "ai gọi ai" — thiếu vài cạnh thì mất một ít gợi ý, không làm hỏng luật gác cổng.
 
 ### Ba lớp, dùng lớp nào có sẵn
 
@@ -476,7 +476,7 @@ Lớp 3 quan trọng và nó chính là ý bạn nói *"hoặc các model AI là
 
 **Chọn ngôn ngữ theo sản phẩm của bạn.** kidea chạy với Rust, C++, Go, TypeScript, Python, Java — bất kỳ ngôn ngữ nào tree-sitter đọc được, và gần như mọi ngôn ngữ phổ biến đều có.
 
-Việc có động cơ chính xác hay không chỉ ảnh hưởng **độ đầy đủ của gợi ý trong `impact`**, không ảnh hưởng luật gác cổng, không ảnh hưởng bản đồ 1 và 3.
+Việc có động cơ chính xác hay không chỉ ảnh hưởng **độ đầy đủ của gợi ý trong `impact`**, không ảnh hưởng luật gác cổng, không ảnh hưởng bản đồ NGHIỆP VỤ và CẦU NỐI.
 
 ---
 
@@ -557,7 +557,7 @@ Chỉ đọc. Mốc, bảng tính năng, blocker kèm đề xuất AI, danh sác
 | `state.yaml` đúng schema | — | Lỗi nặng |
 | Mọi ID được nhắc đều tồn tại | 3 bản đồ | Lỗi nặng |
 | Không có ID trùng | 3 bản đồ | Lỗi nặng |
-| Hai `BR` cùng `writes` một `ENT` | Bản đồ 1 | **Cảnh báo xung đột** |
+| Hai `BR` cùng `writes` một `ENT` | NGHIỆP VỤ | **Cảnh báo xung đột** |
 | `BR` bị `supersedes` mà code vẫn khai `implements` | 1 + 3 | **Cảnh báo nặng** |
 | `BR` chưa có symbol nào `implements` | 1 + 3 | Cảnh báo |
 | `LT` chưa có test nào `covers` | 1 + 3 | Cảnh báo |
@@ -620,7 +620,7 @@ flowchart LR
 
 ### `/kidea adopt`
 
-Cho project đã có code nhưng chưa có `.kidea/`. Quét code dựng bản đồ 2, suy ra module, dựng `state.yaml` mọi thứ ở `DRAFT`, liệt kê chỗ thiếu tài liệu. **Không bịa nghiệp vụ** — chỉ vẽ lại cái đang có và chỉ ra lỗ hổng.
+Cho project đã có code nhưng chưa có `.kidea/`. Quét code dựng bản đồ CODE, suy ra module, dựng `state.yaml` mọi thứ ở `DRAFT`, liệt kê chỗ thiếu tài liệu. **Không bịa nghiệp vụ** — chỉ vẽ lại cái đang có và chỉ ra lỗ hổng.
 
 ---
 
@@ -651,8 +651,7 @@ Quyết định vĩnh viễn, không phải hoãn.
 | **Không viết nghiệp vụ thay Human quyết** | AI soạn và đề xuất, Human quyết. AI vừa viết vừa tự duyệt thì cả hệ thống vô nghĩa |
 | **Không quản lý hạ tầng** | Việc của Terraform/Ansible/K8s |
 | **Không có `/kidea next`** | Chỉ là vỏ bọc tiện tay của `status` |
-| **Không có giao diện web** | Mọi thứ là file text đọc bằng editor hoặc GitHub |
-| **Không bắt AI đọc cả codebase để dựng bản đồ 2** | Chậm, tốn, có thể bịa. Chỉ hỏi AI đúng chỗ máy bó tay |
+| **Không bắt AI đọc cả codebase để dựng bản đồ CODE** | Chậm, tốn, có thể bịa. Chỉ hỏi AI đúng chỗ máy bó tay |
 
 ---
 
@@ -666,8 +665,8 @@ Không chia phiên bản, nhưng vẫn phải viết file nào trước file nà
 | 2 | `guard.py` + hook | **Bảo AI viết code khi trạm chưa qua, xem nó bị chặn** |
 | 3 | `init` + `status` | Đưa tài liệu ChatGPT thật vào, xem kidea báo thiếu gì |
 | 4 | `check` + `approve` | Duyệt một trạm, sửa tài liệu, xem approval bị thu hồi |
-| 5 | Bản đồ 1 + `impact` trên nghiệp vụ | **Hỏi "đổi quy tắc này thì quy tắc nào liên quan"** |
-| 6 | Bản đồ 2 + 3 + `impact` đầy đủ | Hỏi "đổi quy tắc này thì code nào phải sửa" |
+| 5 | NGHIỆP VỤ + `impact` trên nghiệp vụ | **Hỏi "đổi quy tắc này thì quy tắc nào liên quan"** |
+| 6 | CODE + 3 + `impact` đầy đủ | Hỏi "đổi quy tắc này thì code nào phải sửa" |
 | 7 | `change` + đánh dấu chưa đồng bộ | Mở việc sửa, xem kidea không cho đóng khi còn sót |
 | 8 | `slice` + gói ngữ cảnh + subagent | Làm trọn một tính năng, mỗi sub-task context sạch |
 | 9 | `adopt` | Kéo một project cũ vào |
@@ -679,7 +678,7 @@ Bước 2 và bước 5 là hai mốc quan trọng nhất: bước 2 chứng min
 
 ## 14. Chỗ tôi nghĩ có thể sai
 
-1. **AI khai `ENT` không nhất quán.** Bản đồ 1 chỉ mạnh khi AI gọi cùng một thứ bằng cùng một tên. Nếu chỗ này viết `ENT-BALANCE`, chỗ kia `ENT-USER-BALANCE`, lưới an toàn thủng. **Cách chống:** danh sách `ENT` được chốt ở trạm `scope` và Human duyệt; sau đó `check` từ chối `ENT` lạ không có trong danh sách.
+1. **AI khai `ENT` không nhất quán.** Bản đồ NGHIỆP VỤ chỉ mạnh khi AI gọi cùng một thứ bằng cùng một tên. Nếu chỗ này viết `ENT-BALANCE`, chỗ kia `ENT-USER-BALANCE`, lưới an toàn thủng. **Cách chống:** danh sách `ENT` được chốt ở trạm `scope` và Human duyệt; sau đó `check` từ chối `ENT` lạ không có trong danh sách.
 2. **Hook chặn `Bash` không sạch.** Đoán câu lệnh shell ghi vào đâu là việc bẩn. Còn đường vòng tôi chưa nghĩ ra.
 3. **Ranh giới bậc.** Đã hạ rủi ro bằng cách cho cấu hình trong `kidea.yaml` thay vì cắm cứng.
 4. **Ép working tree sạch trước khi duyệt có thể phiền.** Phải dùng thật mới biết.
@@ -687,18 +686,134 @@ Bước 2 và bước 5 là hai mốc quan trọng nhất: bước 2 chứng min
 
 ---
 
-## 15. Cần Human quyết
+## 15. Mười quyết định chi tiết
 
-Hai câu trước về ngôn ngữ **đã tự giải quyết** — kidea không phụ thuộc ngôn ngữ nữa. Còn lại một câu:
+Rà lại toàn bộ đặc tả, đây là những chỗ trước còn để lửng. Chốt luôn.
 
-**Bố cục thư mục code dự kiến?** Chỉ cần phác đại khái, để `init` sinh sẵn bảng `stages` đúng ngay từ đầu:
+### 15.1. ID được đánh số thế nào
 
-```text
-project/
-├── src/
-├── include/
-├── tests/
-└── third_party/
+AI đặt ID khi tạo tài liệu, lấy số kế tiếp còn trống trong miền đó. `check` bắt trùng.
+
+**ID không bao giờ được dùng lại, không bao giờ đánh số lại.** Xoá một quy tắc thì nó chuyển `status: retired` và **nằm nguyên tại chỗ**, không bị xoá khỏi file — vì code và test cũ vẫn có thể còn trỏ tới nó, và ta cần biết chúng đang trỏ vào một thứ đã chết.
+
+Phần miền (`BAL`, `ORDER`) lấy từ danh sách `ENT` đã duyệt ở trạm `scope`, nên miền cũng có giới hạn, không đẻ tuỳ tiện.
+
+### 15.2. Mốc project-wide hay per-feature
+
+Đây là mâu thuẫn thật trong bản trước: mốc tính cho cả project thì thành waterfall, mà vertical slice lại cần từng tính năng đi riêng.
+
+**Cắt đôi:**
+
+| Bậc | Cách tính mốc | Vì sao |
+|:---:|---|---|
+| 1 → 4 (tài liệu) | **Cả project.** Mọi tính năng MVP phải qua thì mốc mới lên | Kiến trúc là thứ cắt ngang. Thiết kế kiến trúc khi còn nửa số nghiệp vụ chưa rõ là thiết kế sai |
+| 5 (code) | **Từng tính năng.** `slice start` mở bậc 5 cho riêng tính năng đó | Sau khi kiến trúc chốt, mỗi tính năng code độc lập được |
+
+Nên vẫn giữ được điều bạn muốn từ đầu — *một tính năng MVP chưa rõ thì chặn cả flow* — mà không biến giai đoạn code thành waterfall.
+
+### 15.3. File dùng chung nhiều tính năng
+
+`src/balance/reserve.cpp` có thể phục vụ cả FEAT-A lẫn FEAT-B. Đang làm slice A mà sửa vào code có annotation `implements` một quy tắc của FEAT-B thì sao?
+
+**Cho sửa, nhưng ghi nhận.** Cấm là vô lý, code dùng chung là chuyện bình thường. `check` phát hiện và đánh dấu FEAT-B là `IMPACT_REVIEW_REQUIRED`, tức là FEAT-B phải verify lại. Không im lặng bỏ qua.
+
+### 15.4. Làm sao ép được "chỉ Human mới duyệt"
+
+Bản trước tôi viết *"script kiểm tra một dấu hiệu do lệnh đó đặt ra"* — nói cho có, không phải cơ chế thật. Chốt lại, **hai lớp**:
+
+**Lớp 1 — cần bàn phím thật.** Lệnh `approve` hỏi xác nhận và đòi đọc từ terminal thật (`stdin.isatty()`). Công cụ Bash mà AI dùng chạy không có terminal, đầu vào nối vào thiết bị rỗng. **AI không trả lời được câu hỏi xác nhận, kể cả khi nó gọi trực tiếp `python kidea.py approve`.**
+
+**Lớp 2 — người gác chặn.** Hook chặn luôn mọi lệnh Bash khớp mẫu gọi tới `approve`.
+
+Lớp 1 là lớp thật. Lớp 2 chỉ để AI nhận thông báo rõ ràng thay vì gặp lỗi khó hiểu.
+
+### 15.5. "Đường dẫn nghiệp vụ" là gì
+
+Luật *"mọi hàm trong đường dẫn nghiệp vụ phải khai `implements`"* cần định nghĩa. Khai trong `kidea.yaml`:
+
+```yaml
+business_paths:
+  - "src/domain/**"
+  - "src/services/**"
 ```
 
-Nếu chưa biết thì cũng không chặn — `init` sinh bản mặc định theo ngôn ngữ, chỉnh sau trong `kidea.yaml`.
+Chỉ hàm nằm trong những đường dẫn này mới bắt buộc khai. Code keo dán, `main()`, tiện ích chung thì không. Nếu ép mọi hàm phải khai thì annotation thành nhiễu và AI sẽ khai bừa cho xong.
+
+### 15.6. Git và nhánh
+
+- `state.yaml` được commit. Đổi nhánh là đổi trạng thái — đúng và nên như vậy.
+- Ghi `state.yaml` theo thứ tự khoá cố định để diff nhỏ nhất và ít xung đột merge.
+- Sau khi merge hoặc rebase, `approved_commit` có thể không còn là tổ tiên của HEAD. `check` phát hiện và cảnh báo, không tự thu hồi — vì rebase không đổi nội dung.
+- Sau mỗi lần merge, `check` chạy lại toàn bộ hash.
+
+### 15.7. Hai phiên chạy cùng lúc
+
+`.kidea/.lock` giữ trong lúc ghi. Phiên thứ hai gặp khoá thì báo lỗi và dừng, không chờ. Đơn giản, đủ dùng.
+
+### 15.8. Gói ngữ cảnh trông như thế nào
+
+Sinh ra file `.kidea/packs/<task-id>.md`, cấu trúc cố định:
+
+```markdown
+# Task: <mô tả>
+Thuộc: FEAT-MVP-ORDER-LIMIT · CHANGE-2026-0042
+
+## Phải thực hiện
+BR-BAL-002 — <tóm tắt 1 dòng> — docs/requirements/business-rules/BR-BAL-002.md
+INV-BALANCE-001 — <tóm tắt>
+
+## Phải pass
+LT-ORDER-0042, LT-ORDER-0043
+
+## Được sửa
+src/balance/reserve.cpp
+src/balance/reserve.hpp
+
+## Hàng xóm (chỉ đọc, không sửa)
+Gọi tới đây: order::place_order, risk::precheck
+Từ đây gọi ra: db::transaction
+
+## Thực thể động vào
+ENT-BALANCE — quy tắc khác cũng ghi: BR-BAL-001 (đã retired), BR-BAL-004
+
+## Bắt buộc
+- Mọi hàm mới phải có @kidea:implements
+- Không sửa file ngoài mục "Được sửa"
+```
+
+Subagent nhận đúng file này làm ngữ cảnh mở đầu.
+
+### 15.9. Tài liệu và code lệch nhau về ngôn ngữ tự nhiên
+
+Tài liệu nghiệp vụ viết tiếng Việt, ID và annotation viết tiếng Anh. `check` chỉ đối chiếu ID, không đọc nội dung, nên không vấn đề.
+
+### 15.10. Nếu `check` báo lỗi mà Human muốn đi tiếp
+
+Không có cửa "bỏ qua nhanh". Có hai đường, cả hai đều để lại vết:
+
+| Đường | Dùng khi | Để lại gì |
+|---|---|---|
+| Sửa cho hết lỗi | Bình thường | Không gì |
+| `/kidea change hotfix` | Sự cố production | Bản `WAIVER` ghi bỏ qua gì, ai duyệt, hạn trả nợ |
+
+`guard.mode: off` là đường thứ ba nhưng nó nằm trong file cấu hình, hiện lên trong git diff, và không ai vô tình bật được.
+
+---
+
+## 16. Chỗ đặc tả này CHƯA nói tới
+
+Nói thẳng để không ai tưởng là đã xong.
+
+**Toàn bộ tài liệu này đặc tả BỘ MÁY, chưa đặc tả CÔNG VIỆC.**
+
+Bộ máy là: cuốn sổ, người gác, ba bản đồ, chín lệnh, luật băm và lan truyền. Phần đó giờ đã chặt.
+
+Công việc là: **AI thực sự làm gì ở mỗi trạm.** Ví dụ ở trạm `requirements`, "audit nghiệp vụ" nghĩa là gì? Kiểm theo danh sách nào? Thế nào là "đủ rõ"? Tài liệu ra trông như thế nào?
+
+Phần đó chiếm 90% thời gian chạy thật, và hiện chưa có một dòng nào. Nó nằm ở [`KIDEA_STATIONS.md`](KIDEA_STATIONS.md).
+
+---
+
+## 17. Cần Human quyết
+
+Không còn câu nào chặn việc code bộ máy. Câu duy nhất còn lại thuộc về `KIDEA_STATIONS.md`.
