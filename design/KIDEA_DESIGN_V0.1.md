@@ -372,11 +372,13 @@ flowchart TD
 
 ---
 
-## 7. Cần bạn chốt
+## 7. Bốn điểm đã chốt (2026-08-28)
 
-1. **Ngôn ngữ script.** Đề xuất Python — có sẵn tree-sitter, dễ đọc, chạy được trong hook. Bạn có ràng buộc gì không?
-2. **Ngôn ngữ của project đầu tiên dùng kidea.** Parser phải viết theo ngôn ngữ. v0.1 nên hỗ trợ một ngôn ngữ trước — là ngôn ngữ nào?
-3. **Mức chặt của hook.** Chặn cứng hay chỉ cảnh báo khi gate chưa pass? Tôi đề xuất chặn cứng với code, cảnh báo với docs.
-4. **Có xây `kidea` bằng chính `kidea` không?** Rất hấp dẫn nhưng sẽ chậm hơn nhiều. Tôi đề xuất **không** cho v0.1 — xây tay, dùng thật, rồi mới nghĩ tới chuyện đó.
+| # | Câu hỏi | Human quyết |
+|---|---|---|
+| 1 | Ngôn ngữ script | **Python** |
+| 2 | Ngôn ngữ project đầu tiên | **Rust** |
+| 3 | Mức chặt của hook | **Chặn cứng cả code lẫn tài liệu** |
+| 4 | Xây kidea bằng kidea | **Không**, ở v0.1 |
 
-Sau khi bạn chốt 4 điểm này, bước kế tiếp là viết đặc tả chính xác của `state.yaml`, `graph.json`, và hành vi 6 lệnh v0.1.
+Đặc tả chi tiết dựa trên bốn quyết định này nằm ở [`KIDEA_SPEC_V0.1.md`](KIDEA_SPEC_V0.1.md). Lưu ý quyết định số 3 cần diễn giải để không tự khoá chính nó — xem mục 1 của bản spec.

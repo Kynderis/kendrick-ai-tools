@@ -1,372 +1,137 @@
 # Trả lời của Claude
 
-Tôi giải thích lại từ đầu, bỏ hết thuật ngữ.
+Đã ghi lại 4 quyết định và viết xong đặc tả chi tiết: `design/KIDEA_SPEC_V0.1.md`.
+
+Dưới đây là những chỗ bạn cần đọc kỹ trước khi tôi bắt đầu code.
 
 ---
 
-## Phần 1 — Vấn đề bạn đang gặp
+## 1. Câu trả lời số 3 của bạn có một cái bẫy
 
-Bạn đã tự nói ra rồi: *"tôi biết cách tôi tận dụng AI chưa tốt, nó chưa theo 1 khung nào cả nên nó làm tôi khó control."*
-
-Cụ thể nó hỏng ở hai chỗ:
-
-```mermaid
-flowchart TD
-    subgraph L1["Lúc làm"]
-    A["Bạn: làm tính năng đặt lệnh Limit"] --> B["AI viết code ngay"]
-    B --> C{"Code này đúng không?"}
-    C --> D["Bạn không biết.<br/>Không có gì để đối chiếu.<br/>Nghiệp vụ chưa ai viết ra."]
-    end
-
-    subgraph L2["Một tháng sau"]
-    E["Bạn đổi 1 quy tắc:<br/>giờ cho phép partial fill"] --> F["AI sửa chỗ nó nhìn thấy"]
-    F --> G["Còn 4 chỗ khác cũng phụ thuộc quy tắc đó"]
-    G --> H["Không ai biết 4 chỗ đó ở đâu.<br/>Bug xuất hiện 3 tuần sau."]
-    end
-```
-
-Hai vấn đề này khác nhau:
-
-- **Vấn đề 1: AI làm quá sớm.** Nó viết code khi nghiệp vụ chưa rõ. Code ra thì trông có vẻ chạy được, nhưng sai ngay từ giả định.
-- **Vấn đề 2: AI không nhớ hết.** Sửa một chỗ nhưng không biết chỗ đó liên quan tới đâu.
-
-`kidea` sinh ra để chặn đúng hai thứ này. Không phải để "làm AI thông minh hơn".
-
----
-
-## Phần 2 — kidea là gì, nói bằng ẩn dụ
-
-Hãy nghĩ tới **quy trình xây nhà**.
-
-Bạn không được đổ móng trước khi bản vẽ được duyệt. Không phải vì thủ tục hành chính, mà vì đổ móng sai thì phải đập cả nhà.
-
-`kidea` đặt các **trạm kiểm tra** trên đường từ ý tưởng tới sản phẩm. Mỗi trạm có một câu hỏi. Chưa trả lời được thì không đi tiếp.
+Bạn chọn **chặn cứng cả code lẫn tài liệu**. Nếu tôi làm đúng nghĩa đen thì hệ thống **tự khoá chính nó**:
 
 ```mermaid
 flowchart LR
-    A["Ý tưởng"] --> T1{"Trạm 1<br/>Nghiệp vụ<br/>đã rõ chưa?"}
-    T1 --> B["Đặc tả nghiệp vụ"]
-    B --> T2{"Trạm 2<br/>Đã biết<br/>test thế nào chưa?"}
-    T2 --> C["Danh sách test case<br/>dạng chữ"]
-    C --> T3{"Trạm 3<br/>Kiến trúc<br/>đã chốt chưa?"}
-    T3 --> D["Thiết kế hệ thống"]
-    D --> T4{"Trạm 4<br/>Code có<br/>pass test không?"}
-    T4 --> E["Sản phẩm chạy được"]
+    A["Trạm REQUIREMENTS<br/>chưa qua"] --> B["Người gác chặn<br/>ghi tài liệu"]
+    B --> C["Không viết được<br/>docs/requirements"]
+    C --> D["Trạm REQUIREMENTS<br/>mãi mãi không qua được"]
+    D --> A
 ```
 
-**Điểm mấu chốt: ai là người gác trạm?**
+Muốn qua trạm nghiệp vụ thì phải viết tài liệu nghiệp vụ. Chặn viết tài liệu thì không bao giờ qua trạm.
 
-Trong bản Codex cũ, người gác trạm là *lời dặn trong prompt*. Tức là bạn dặn AI "đừng đi qua trạm khi chưa duyệt". AI đọc, gật đầu, rồi 20 phút sau nó quên và đi qua.
+**Nên tôi hiểu ý bạn là:** không phải "cấm viết tài liệu", mà là **"cấm viết tài liệu của bước sau khi bước trước chưa xong"**. AI không được nhảy sang viết tài liệu kiến trúc khi nghiệp vụ còn dang dở.
 
-Trong bản tôi thiết kế, người gác trạm là **một đoạn script chạy tự động, đứng ngoài AI**. AI muốn viết code, script kiểm tra trạm trước đã, chưa qua thì **chặn thẳng**. AI không cãi được vì nó không phải người quyết định.
-
-Đây là khác biệt lớn nhất, và là lý do đáng giá nhất để bạn rời Codex.
-
----
-
-## Phần 3 — Một ngày làm việc với kidea trông như thế nào
-
-Đây là phần quan trọng nhất. Tôi kể một kịch bản thật.
-
-### Ngày 1 — Nhập tài liệu từ ChatGPT
-
-Bạn gõ:
-
-```
-/kidea init ../chatgpt-san-crypto
-```
-
-kidea đọc toàn bộ tài liệu ChatGPT của bạn, rồi báo:
-
-```
-Đã đọc 14 file tài liệu.
-
-Tìm thấy 12 tính năng:
-  MVP     8
-  Future  3
-  Idea    1
-
-Đã kiểm tra nghiệp vụ 8 tính năng MVP:
-  5 tính năng: tài liệu đủ rõ
-  3 tính năng: THIẾU THÔNG TIN
-
-TRẠM 1 CHƯA QUA. Chưa được sang bước sau.
-Gõ /kidea status để xem thiếu gì.
-```
-
-Bạn gõ `/kidea status`:
-
-```
-FEAT-MVP-ORDER-MARKET — Đặt lệnh Market
-  Thiếu 1: Thanh khoản không đủ thì xử lý thế nào?
-  Thiếu 2: Có cho phép khớp một phần không?
-  Thiếu 3: Giới hạn trượt giá bao nhiêu?
-
-  Tôi đề xuất:
-    1. Khớp được bao nhiêu thì khớp, phần còn lại huỷ
-    2. Có, cho phép khớp một phần
-    3. Cho người dùng tự đặt mức trượt giá tối đa
-
-  Đây là ĐỀ XUẤT, chưa phải quyết định. Bạn chốt.
-```
-
-Bạn trả lời trong chat, AI cập nhật tài liệu. Khi bạn thấy ổn, bạn gõ:
-
-```
-/kidea approve requirements FEAT-MVP-ORDER-MARKET
-```
-
-Chỉ **bạn** mới gõ được lệnh này. AI không có đường tự duyệt cho chính nó.
-
-### Ngày 5 — Khoảnh khắc kidea chứng minh giá trị
-
-Giả sử còn 1 tính năng chưa duyệt, nhưng bạn sốt ruột và bảo AI:
-
-> "Thôi code luôn phần đặt lệnh Market đi"
-
-AI định viết file `services/order/market_order.py`. Nhưng:
+Cụ thể, mỗi thư mục có một **bậc**, và bậc hiện tại gọi là **mốc**:
 
 ```mermaid
-sequenceDiagram
-    participant B as Bạn
-    participant AI as Claude
-    participant G as Người gác (script)
-    participant F as File code
-
-    B->>AI: Code phần Market order đi
-    AI->>G: Tôi muốn ghi vào market_order.py
-    G->>G: Kiểm tra sổ trạng thái
-    Note over G: FEAT-MVP-ORDER-MARKET<br/>Trạm 1 = CHƯA QUA
-    G-->>AI: TỪ CHỐI
-    Note over G,AI: "Nghiệp vụ chưa duyệt.<br/>Còn thiếu: chính sách trượt giá."
-    AI-->>B: Không viết được. Lý do: ...
-    Note over F: File không bị đụng vào
+flowchart LR
+    S1["Bậc 1<br/>docs/product"] --> S2["Bậc 2<br/>docs/requirements"]
+    S2 --> S3["Bậc 3<br/>docs/logical-tests<br/>docs/ux"]
+    S3 --> S4["Bậc 4<br/>docs/architecture"]
+    S4 --> S5["Bậc 5<br/>src/ tests/"]
 ```
 
-Kể cả AI *muốn* nghe lời bạn, nó cũng không làm được. Đây là điều Codex không làm được, và là thứ bạn cần.
-
-Nếu bạn thật sự muốn đi tiếp, bạn phải duyệt chính thức. Tức là **bạn phải nhìn vào cái mình đang bỏ qua** trước khi bỏ qua nó.
-
-### Ngày 30 — Đổi một quy tắc nghiệp vụ
-
-Bạn muốn đổi quy tắc giữ số dư. Bạn gõ:
-
-```
-/kidea impact BR-BAL-003
-```
-
-kidea trả lời:
-
-```
-Sửa BR-BAL-003 sẽ ảnh hưởng:
-
-  Tài liệu      2 file
-  Test case     5 case (LT-ORDER-0042, 0043, 0051, 0052, 0067)
-  Code          3 file
-                  services/balance/reserve.py
-                  services/order/place_order.py
-                  services/risk/precheck.py
-  Test code     4 file
-  Màn hình      2 (Web đặt lệnh, Admin xem số dư)
-
-  Approval sẽ bị thu hồi: requirements, logical_tests, architecture
-```
-
-**Đây là câu trả lời của một cái máy, không phải trí nhớ của AI.** Nên nó không bịa.
-
-Và sau khi bạn sửa BR-BAL-003, kidea đánh dấu 16 thứ ở trên là "chưa đồng bộ". Người gác sẽ không cho đóng việc chừng nào còn thứ chưa đồng bộ. Đúng ý bạn viết trong draft: *"khi sửa hoặc xoá thì truy ra các bên liên quan và làm đến cùng."*
-
----
-
-## Phần 4 — Vậy tôi sẽ xây cái gì?
-
-Bốn mảnh. Tôi đặt tên đời thường cho dễ hình dung.
-
-```mermaid
-flowchart TD
-    subgraph K["kidea"]
-    S["1. CUỐN SỔ CÔNG TRƯỜNG<br/>state.yaml<br/><br/>Ghi mỗi tính năng đang ở trạm nào,<br/>ai đã duyệt, còn thiếu gì"]
-
-    G["2. NGƯỜI GÁC CỔNG<br/>hook<br/><br/>Chạy trước mỗi lần AI định sửa file.<br/>Đọc cuốn sổ, chưa qua trạm thì chặn"]
-
-    M["3. TẤM BẢN ĐỒ<br/>graph.json<br/><br/>Cái gì liên quan cái gì.<br/>Quy tắc nào nằm ở code nào"]
-
-    C["4. BỘ LỆNH<br/>skill<br/><br/>8 lệnh /kidea bạn gõ<br/>để điều khiển mọi thứ"]
-    end
-
-    C -->|"đọc và ghi"| S
-    G -->|"đọc"| S
-    C -->|"dựng lại"| M
-    M -->|"trả lời câu hỏi ảnh hưởng"| C
-    G -.->|"chặn AI ghi bậy vào"| S
-```
-
-Nói rõ từng cái:
-
-**1. Cuốn sổ công trường.** Một file duy nhất ghi trạng thái. Vì sao cần? Vì hôm nay bạn mở Claude Code, ngày mai mở lại, AI đã quên sạch. Cuốn sổ nằm trong repo nên nó **không quên**. Mở session mới, gõ `/kidea init`, AI đọc sổ và biết ngay đang ở đâu.
-
-**2. Người gác cổng.** Đoạn script chạy tự động trước mỗi thao tác của AI. Đây là thứ biến "lời dặn" thành "luật".
-
-**3. Tấm bản đồ.** Cái này cần giải thích kỹ hơn, xem Phần 5.
-
-**4. Bộ lệnh.** 8 lệnh:
-
-| Lệnh | Nghĩa đời thường |
+| Trường hợp | Phán quyết |
 |---|---|
-| `/kidea init` | Bắt đầu, hoặc mở lại project cũ |
-| `/kidea status` | Tôi đang ở đâu, kẹt cái gì |
-| `/kidea check` | Soát lại xem có gì sai lệch không |
-| `/kidea index` | Vẽ lại tấm bản đồ |
-| `/kidea next` | Làm bước tiếp theo hợp lệ |
-| `/kidea approve` | Tôi duyệt. Chỉ bạn gõ được |
-| `/kidea impact` | Sửa cái này thì ảnh hưởng đâu |
-| `/kidea change` | Mở một việc mới: sửa bug, thêm tính năng... |
+| Ghi vào bậc **bằng hoặc thấp hơn** mốc | **CHO** |
+| Ghi vào bậc **cao hơn** mốc | **CHẶN** |
+| Sửa tài liệu **đã duyệt** ở bậc thấp | **CHO**, nhưng thu hồi approval và bắt làm lại mọi thứ phía sau |
+| Ghi vào `state.yaml`, `graph.json`, `docs/source` | **CHẶN** luôn |
+
+Hàng thứ ba quan trọng: **bạn luôn được quyền đổi ý về nghiệp vụ.** kidea không cấm bạn sửa, nó chỉ bắt mọi thứ phía sau phải làm lại cho khớp — đúng ý bạn viết trong draft là "làm đến cùng".
+
+**Nếu tôi hiểu sai ý bạn, báo ngay bây giờ**, vì cái này quyết định toàn bộ phần người gác.
 
 ---
 
-## Phần 5 — Tấm bản đồ: chỗ tôi sửa yêu cầu của bạn
+## 2. Tôi phải nói thẳng một giới hạn về Rust
 
-Trong draft bạn viết:
+Bạn chọn Rust. Có một chỗ tôi **không làm được hoàn hảo**, và tôi muốn bạn biết trước chứ không phát hiện sau.
 
-> *"Sau khi xong 1 task con thì update trong 1 file index hoặc mapping nào đó để biết các file/module đã làm gì, đang gọi đến đâu và được đâu gọi đến."*
+Tấm bản đồ có hai lớp, như đã bàn. Lớp "máy tự đọc code" với Rust thì thế này:
 
-Ý bạn đúng. Nhưng **cách làm** thì tôi đề xuất khác, và đây là chỗ quan trọng nhất tôi muốn bạn hiểu.
+| Loại quan hệ | Có bắt được không |
+|---|---|
+| `use` / import giữa module | Chính xác |
+| Gọi hàm trực tiếp `foo::bar()` | Chính xác |
+| Gọi method trên kiểu cụ thể | Gần chính xác |
+| Gọi qua trait `dyn Trait` | **Bỏ sót** |
+| Code sinh bởi macro | **Bỏ sót** |
 
-### Cách bạn nói: AI tự khai vào một file index
+Lý do: muốn chính xác 100% với Rust thì phải chạy qua `rustc` hoặc `rust-analyzer`, tức là project phải biên dịch được, và rất chậm. tree-sitter chỉ đọc cú pháp nên không biết `dyn Trait` thực tế trỏ tới đâu.
 
-```mermaid
-flowchart LR
-    A["AI xong việc"] --> B["AI tự ghi vào<br/>file index"]
-    B --> C["Vài tuần sau"]
-    C --> D["Code đã đổi<br/>nhưng index quên cập nhật"]
-    D --> E["AI đọc index sai<br/>và tin là đúng"]
-    E --> F["Hallucinate<br/>đúng cái bạn muốn chống"]
-```
+**Hệ quả thiết kế, và đây là điểm quan trọng:**
 
-Vấn đề: một cuốn sổ do AI tự khai thì **không đáng tin hơn trí nhớ của AI**. Nó chỉ đổi chỗ cất vấn đề.
+> Lớp **annotation** (`@kidea:implements BR-BAL-003` bạn viết trong code) là nguồn sự thật, dùng để gác cổng.
+> Lớp **parser** chỉ để gợi ý khi trả lời `impact`, và luôn hiện kèm cảnh báo có thể sót.
 
-### Cách tôi đề xuất: máy tự đọc code rồi vẽ bản đồ
+Tôi **không xây luật cứng lên trên dữ liệu xấp xỉ**. Nếu project của bạn dùng nhiều trait object, phần gợi ý từ parser sẽ mỏng, và annotation gánh phần chính. Đổi lại annotation thì chính xác tuyệt đối vì do người viết ra.
 
-Bạn đã nhắc đúng từ khoá mà chưa khai thác hết: **Doxygen**.
-
-Doxygen không bắt ai duy trì file index. Nó **đọc source code rồi tự sinh ra index**. Người lập trình chỉ viết chú thích ngay cạnh hàm.
-
-Áp dụng vào kidea, chia làm hai lớp:
-
-```mermaid
-flowchart TD
-    subgraph D["Lớp 1: máy tự đọc, KHÔNG AI VIẾT"]
-    D1["Hàm nào gọi hàm nào"]
-    D2["File nào import file nào"]
-    D3["Ai gọi tới đây"]
-    end
-
-    subgraph H["Lớp 2: người viết, nhưng viết NGAY TRONG CODE"]
-    H1["Hàm này thực hiện quy tắc BR-BAL-003"]
-    H2["Test này cover case LT-ORDER-0042"]
-    end
-
-    D --> J["Ghép lại"]
-    H --> J
-    J --> MAP["TẤM BẢN ĐỒ<br/>graph.json"]
-    MAP --> Q["/kidea impact trả lời<br/>trong 1 giây, không bịa"]
-```
-
-Lớp 2 trông thế này trong code thật:
-
-```python
-# @kidea:thuc-hien BR-BAL-003, BR-BAL-004
-def reserve_balance(user_id, amount):
-    ...
-```
-
-**Vì sao viết trong code lại tốt hơn viết ra file riêng?**
-
-Vì ai sửa hàm đó cũng **nhìn thấy dòng chú thích ngay trên đầu**. Còn file index để chỗ khác thì không ai nhìn thấy, nên không ai nhớ cập nhật.
-
-Còn lớp 1 thì **không thể sai**, vì mỗi lần chạy lại nó đọc code hiện tại. Code đổi thì bản đồ đổi theo. Không có chuyện lệch.
+Nếu sau này bạn cần chính xác hơn, v0.3 thêm được nguồn từ `rust-analyzer`.
 
 ---
 
-## Phần 6 — Tôi sẽ làm theo thứ tự nào
+## 3. Những gì đặc tả đã chốt xong
+
+Không cần đọc hết, nhưng để bạn biết trong đó có gì:
+
+- **Cuốn sổ `state.yaml`** — cấu trúc đầy đủ, mọi giá trị hợp lệ. Kèm hai luật bất khả xâm phạm: `human: APPROVED` chỉ đặt được bởi lệnh `/kidea approve`; và không duyệt được gate mà chính AI còn đang báo thiếu.
+- **Cách viết annotation trong Rust** — dùng `///` hoặc `//`, kèm quy ước đặt ID.
+- **`graph.json`** — cấu trúc node và cạnh, mỗi cạnh ghi rõ đến từ annotation hay parser.
+- **`log.jsonl`** — sổ ghi thêm, không sửa. Đây là bằng chứng: ai duyệt gì, lúc nào, trên commit nào.
+- **Sáu lệnh v0.1** — điều kiện, các bước, kết quả, cách thất bại của từng lệnh.
+- **Thông điệp khi chặn** — phải nói được 3 điều: chặn vì sao, đang kẹt ở đâu, làm gì tiếp. Nếu không AI sẽ loay hoay thử lại.
+
+---
+
+## 4. Những gì v0.1 cố tình KHÔNG làm
+
+Ghi rõ để sau này không ai tưởng là tôi quên:
+
+`next` · `change` · `adopt` · `slice` · context pack và subagent · sinh logical test tự động · nhập UX · tài liệu kiến trúc → **v0.2**
+
+Deploy · CI · production gate → **v0.3**
+
+Ngôn ngữ khác Rust · call graph chính xác qua rust-analyzer → **sau khi Rust chạy ổn**
+
+Nếu có cái nào bạn thấy **bắt buộc phải có ngay**, nói bây giờ.
+
+---
+
+## 5. Tôi sẽ code theo thứ tự này
 
 ```mermaid
 flowchart TD
-    B1["BƯỚC 1<br/>Chốt 4 câu hỏi ở Phần 7"] --> B2
-
-    B2["BƯỚC 2<br/>Viết đặc tả chi tiết<br/>Cuốn sổ ghi gì, bản đồ ghi gì,<br/>8 lệnh chạy ra sao<br/><br/>Bạn đọc và duyệt"] --> B3
-
-    B3["BƯỚC 3<br/>Xây CUỐN SỔ và NGƯỜI GÁC<br/><br/>Kết quả: bạn thấy hook chặn AI thật"] --> B4
-
-    B4["BƯỚC 4<br/>Xây lệnh init / status / approve<br/><br/>Kết quả: chạy được vòng<br/>nhập tài liệu, soát, duyệt"] --> B5
-
-    B5["BƯỚC 5<br/>Xây TẤM BẢN ĐỒ và impact<br/><br/>Kết quả: hỏi được<br/>sửa cái này ảnh hưởng đâu"] --> B6
-
-    B6["BƯỚC 6<br/>Chạy thử trên 1 project nhỏ thật<br/><br/>Tìm chỗ thiết kế sai"] --> B7
-
-    B7["BƯỚC 7<br/>Sửa theo cái học được,<br/>rồi mới mở rộng"]
+    T1["1. Cuốn sổ + schema + test"] --> T2
+    T2["2. Người gác + hook<br/><br/>BẠN XEM ĐƯỢC:<br/>hook chặn AI thật"] --> T3
+    T3["3. Lệnh init + status<br/><br/>BẠN XEM ĐƯỢC:<br/>nhập tài liệu thật của bạn, xem báo cáo"] --> T4
+    T4["4. Lệnh check + approve<br/><br/>BẠN XEM ĐƯỢC:<br/>duyệt 1 gate, rồi sửa tài liệu,<br/>xem approval bị thu hồi"] --> T5
+    T5["5. Đọc code Rust + lệnh impact<br/><br/>BẠN XEM ĐƯỢC:<br/>hỏi ảnh hưởng trên code Rust thật"] --> T6
+    T6["6. Chạy thật, tìm chỗ thiết kế sai"]
 ```
 
-Ý đồ của tôi ở đây: **bạn nhìn thấy thứ chạy được từ Bước 3**, chứ không phải đợi hết mọi thứ. Nếu thiết kế của tôi sai, tôi muốn biết sớm, lúc mới mất vài ngày, chứ không phải sau vài tuần.
-
-Đây cũng chính là triết lý bạn muốn áp dụng cho sản phẩm của bạn. Tôi áp dụng nó cho `kidea` trước.
+Mỗi mốc là thứ bạn **bấm vào xem được**, không phải một dòng báo cáo tiến độ. Mốc đầu tiên bạn thấy được là **bước 2** — lúc đó bạn có thể tự thử bảo tôi viết code khi gate chưa qua, và xem tôi bị chặn.
 
 ---
 
-## Phần 7 — Bốn câu hỏi, giải thích dễ hiểu
+## 6. Bốn chỗ tôi nghĩ có thể sai
 
-### Câu 1: Viết mấy đoạn script này bằng ngôn ngữ gì?
+Nói trước để bạn để ý khi chạy thử:
 
-Người gác cổng và các lệnh `/kidea` là chương trình nhỏ, phải viết bằng một ngôn ngữ nào đó.
-
-**Tôi đề xuất Python.** Nó có sẵn thư viện đọc code của mọi ngôn ngữ khác, chạy nhanh, dễ đọc khi bạn muốn kiểm tra AI viết gì.
-
-Bạn chỉ cần nói "được" trừ khi máy bạn không có Python hoặc bạn ghét nó.
-
-### Câu 2: Project đầu tiên bạn định dùng kidea viết bằng ngôn ngữ gì?
-
-Cái này cần bạn trả lời thật.
-
-Vì lớp 1 của tấm bản đồ phải **đọc hiểu code**, mà mỗi ngôn ngữ có cú pháp khác nhau. Tôi phải viết bộ đọc riêng cho từng ngôn ngữ.
-
-Làm hết mọi ngôn ngữ ngay từ đầu là phí thời gian. Tôi muốn làm **đúng một ngôn ngữ bạn sắp dùng thật**, cho chạy ngon, rồi mới thêm cái khác.
-
-Bạn định làm sàn crypto, hay project khác? Backend viết bằng gì — Go, Java, TypeScript, Python, Rust?
-
-### Câu 3: Người gác cổng nên chặn cứng, hay chỉ cảnh báo?
-
-Hai lựa chọn:
-
-| | Chặn cứng | Chỉ cảnh báo |
-|---|---|---|
-| Khi gate chưa qua | AI **không** ghi được file | AI ghi được, nhưng hiện dòng nhắc |
-| Ưu | Kỷ luật thật | Linh hoạt |
-| Nhược | Có lúc vướng khi bạn muốn thử nhanh | Quay lại đúng vấn đề cũ: AI bỏ qua nhắc nhở |
-
-**Tôi đề xuất: chặn cứng với code, chỉ cảnh báo với tài liệu.**
-
-Lý do: viết sai tài liệu thì sửa lại dễ. Viết sai code khi nghiệp vụ chưa rõ thì phải đập đi làm lại, và thường phát hiện rất muộn.
-
-Và luôn có đường thoát: bạn gõ `/kidea approve` là qua. Chỉ là bạn phải **cố ý** làm điều đó, chứ AI không tự lách được.
-
-### Câu 4: Có nên dùng kidea để xây chính kidea không?
-
-Nghe rất hay. "Dùng công cụ để tự xây công cụ" là phép thử tốt nhất.
-
-**Nhưng tôi đề xuất: chưa, không phải lúc này.**
-
-Vì đến giờ `kidea` chưa tồn tại. Muốn dùng nó để xây nó thì phải xây nó trước đã — con gà và quả trứng. Ép làm sẽ chậm gấp mấy lần và bạn phải chờ rất lâu mới thấy thứ gì chạy được.
-
-Tôi đề xuất: xây tay `kidea` v0.1 → dùng nó cho project thật của bạn → học được chỗ nào dở → sửa. Sau khi nó đủ chín, lúc đó mới quay lại tự áp dụng cho chính nó.
+1. **Hook chặn `Bash` không sạch.** Đọc câu lệnh shell để đoán nó ghi vào đâu là việc bẩn. Tôi chặn được các dạng phổ biến (`>`, `>>`, `tee`, `sed -i`, `cp`, `mv`), nhưng chắc chắn có đường vòng tôi không nghĩ ra. Mục tiêu là chống AI trôi dạt, không phải chống kẻ cố tình phá.
+2. **Ranh giới bậc có thể quá thô.** Đời thật sẽ có file không thuộc bậc nào rõ ràng — script build, migration, config. Tôi để sẵn danh sách miễn trừ, nhưng nó sẽ phải chỉnh dần.
+3. **Call graph Rust sẽ sót**, như mục 2.
+4. **Ép working tree sạch trước khi duyệt có thể phiền.** Đúng về kỹ thuật — không băm được nội dung nếu file đang dở — nhưng có thể gây khó chịu khi dùng thật.
 
 ---
 
-## Tóm lại trong 5 dòng
+## Cần bạn làm gì bây giờ
 
-1. `kidea` đặt **trạm kiểm tra** giữa ý tưởng và code, để AI không viết code khi nghiệp vụ chưa rõ.
-2. Trạm được gác bởi **script chặn tự động**, không phải bởi lời dặn trong prompt.
-3. Có **tấm bản đồ sinh ra từ chính code** để trả lời "sửa cái này ảnh hưởng đâu" mà không bịa.
-4. Trạng thái nằm trong **file trong repo**, nên đóng máy mở lại vẫn nhớ.
-5. Tôi xây từng mảnh, **bạn thấy thứ chạy được từ bước 3**, sai thì sửa sớm.
+Đọc `design/KIDEA_SPEC_V0.1.md`, chú ý ba chỗ:
 
-Bạn đọc xong, thấy chỗ nào vẫn khó hiểu thì hỏi tiếp. Khi nào bạn thấy rõ rồi thì trả lời 4 câu ở Phần 7, tôi bắt đầu viết đặc tả chi tiết.
+- **Mục 1** — cách tôi diễn giải "chặn cứng cả tài liệu". Sai thì phải sửa trước khi code.
+- **Mục 6** — giới hạn call graph Rust. Đây là chỗ kỳ vọng dễ lệch nhất giữa chúng ta.
+- **Mục 10** — danh sách v0.1 không làm.
+
+Ổn rồi thì trả lời **"duyệt spec"**, tôi bắt đầu code ngay từ bước 1.
