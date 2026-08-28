@@ -1,71 +1,103 @@
 # Trả lời của Claude
 
-Đã đọc xong toàn bộ repo. Dưới đây là bối cảnh tôi nắm được, thay đổi tôi đã làm, và một điểm quan trọng cần bạn quyết định.
+Đã tạo `CLAUDE.md`, và vì bạn cho tôi quyền tự đề xuất, tôi viết luôn bản thiết kế `kidea` cho Claude Code thay vì port nguyên si bản Codex.
 
-## 1. Bối cảnh tôi hiểu
+## 1. File quy tắc
 
-Repo này **chưa có code sản phẩm** — nó là nơi bạn đang thiết kế `kidea`: một Skill/quy trình để Human + AI Agent biến ý tưởng thành MVP rồi phát triển tiếp thành sản phẩm hoàn chỉnh.
+- `CLAUDE.md` — file chuẩn, Claude Code tự nạp mỗi session mới. Chứa: project này là gì, bố cục thư mục, quy tắc nhánh `claude`, quy tắc mirror `answer.md`.
+- `AGENTS.md` — rút gọn thành con trỏ về `CLAUDE.md`.
 
-Bốn file hiện có:
+Tôi không symlink vì trên Windows symlink cần dev mode. Con trỏ đạt cùng mục đích và tránh hai nguồn sự thật lệch nhau.
 
-| File | Vai trò |
-|---|---|
-| `AGENTS.md` | Quy tắc vận hành repo (mirror câu trả lời) |
-| `answer.md` | Bản mirror câu trả lời cuối cùng, để bạn đọc từ máy/điện thoại khác qua GitHub |
-| `conversations/kidea-workflow-chat-2026-08-24-25.md` | 2.799 dòng — toàn bộ thiết kế `kidea` đã chốt tới hiện tại |
-| `drafts/KIDEA_CONTEXT_TRACEABILITY_REQUIREMENT_DRAFT.md` | Yêu cầu mới của bạn, **chưa được phân tích** |
+## 2. Bản thiết kế mới
 
-Cốt lõi triết lý `kidea` mà tôi nắm được:
+Nằm ở `design/KIDEA_DESIGN_V0.1.md`. Tôi giữ **triết lý** của bản Codex nhưng thay **cơ chế** và cắt mạnh **quy mô**. Sáu điều chỉnh nền tảng:
 
-> `kidea` không phải lệnh để AI viết code. Nó là **state machine có quality gate**, buộc đi qua: ý tưởng → đặc tả nghiệp vụ → audit độ chặt chẽ → logical test → UX → kiến trúc → walking skeleton → vertical slice → DEV → PROD → change management.
+### 2.1. Gate phải chặn cứng, không phải nhắc nhở
 
-Và kiến trúc trách nhiệm đã chốt:
+Đây là lý do gốc khiến bản Codex không cho bạn cảm giác kiểm soát. Trên Codex, luật "AI không được nhảy cóc" chỉ là chữ trong prompt. AI đọc, gật đầu, rồi vài nghìn token sau nó quên và bắt đầu viết code. Bạn không có cách nào ngăn — bạn chỉ có thể hy vọng.
+
+Claude Code có **hook**. `PreToolUse` chạy **trước** mỗi lần AI gọi Write/Edit/Bash, đọc state, và **từ chối** thao tác không hợp lệ:
 
 ```text
-AGENTS.md        = cửa vào + bản đồ
-.kidea/state.yaml = trạng thái chuẩn (machine-readable)
-docs/            = tri thức chi tiết
-scripts          = luật deterministic (AI không được "diễn giải")
-Human approval   = quyền quyết định cuối
-AI               = phân tích, sinh nội dung, triển khai
-CI               = cưỡng chế gate tự động
-Git              = lịch sử và bằng chứng
+AI muốn sửa services/order/place_order.py
+        ↓ PreToolUse: kidea_guard.py
+FEAT-MVP-ORDER-LIMIT.requirements = NEEDS_CLARIFICATION
+        ↓
+DENY: "Gate REQUIREMENTS chưa pass. Thiếu: chính sách slippage."
 ```
 
-Những quyết định thiết kế quan trọng đã chốt trong conversation: tách 4 trục trạng thái độc lập (scope / channel / dev status / doc status); tách "dashboard" thành 3 sản phẩm khác nhau (Admin Console, Ops Dashboard, Business Dashboard); chia bước kiến trúc thành 9 bước con K4.1–K4.9; phân biệt *test specification* (trước code) và *executable test* (khi code); approval tự động `STALE` khi content hash tài liệu đổi; và roadmap tự áp dụng cho chính `kidea` (v0.1 → v0.4).
+AI không bỏ qua được vì nó không phải bên quyết định. Nguyên tắc rút ra:
 
-**Việc còn dở**: file draft về context/traceability của bạn — mỗi sub-task phải load lại context sạch để chống hallucinate, có index kiểu Doxygen để trace file/module gọi ai và bị ai gọi, kèm version của session sửa đổi. Đây là mảnh còn thiếu và nó khớp trực tiếp với `traceability.yaml` đã phác trong thiết kế.
+> **Luật nào quan trọng thì viết thành script, không viết thành prompt.**
 
-## 2. Thay đổi đã làm
+Đây là thứ Codex không có, và là lý do chính đáng nhất để chuyển sang Claude Code.
 
-Cập nhật [AGENTS.md](AGENTS.md):
+### 2.2. Đơn vị trạng thái là feature, không phải project
 
-- Thêm mục **Working branch**: toàn bộ công việc trên nhánh `claude`, mọi commit/push đi lên `origin/claude`, không đẩy lên `main`.
-- Quy tắc mirror: `origin/main` → `origin/claude`.
-- Bỏ chữ "trong Codex" khỏi quy tắc mirror để nó áp dụng cho bất kỳ agent nào đang chạy.
+Bản cũ tự mâu thuẫn: vừa đặt `current_phase` cho cả project, vừa bảo làm theo vertical slice. Hai thứ này không cùng tồn tại được.
 
-Đây là chỗ duy nhất trong repo nhắc tới nhánh `main`; file conversation không đề cập nhánh nào.
+Sửa: project chỉ có phase khi bootstrap (`P1_SCOPE → P2_REQUIREMENTS → P3_FOUNDATION`), sau đó đứng yên vĩnh viễn ở `P4_BUILD`. Từ đó trở đi mọi trạng thái thuộc về từng feature, và nhiều feature ở nhiều bước khác nhau cùng lúc là **đúng**, không phải lỗi.
 
-## 3. Điểm cần bạn quyết định
+### 2.3. Bốn file thay cho một cây thư mục
 
-Toàn bộ thiết kế `kidea` hiện tại được viết **bám vào cơ chế của Codex**, và những chỗ đó không port thẳng sang Claude Code:
+`kidea.yaml` (Human sở hữu) / `state.yaml` (script sở hữu) / `graph.json` (sinh ra) / `log.jsonl` (append-only).
 
-| Thiết kế hiện tại (Codex) | Claude Code |
-|---|---|
-| Gọi Skill bằng `$kidea init` | Gọi bằng `/kidea` (slash command) |
-| `AGENTS.md` là file Codex tự nạp | Claude Code nạp `CLAUDE.md` là chính |
-| Skill ở `~/.agents/skills/kidea/` | `.claude/skills/kidea/SKILL.md` (project) hoặc `~/.claude/skills/` |
-| `policy.allow_implicit_invocation: false` | Cơ chế khác |
-| Không có cơ chế chặn cứng | **Hooks** — `PreToolUse` chặn được thao tác khi gate chưa pass |
+Quan trọng nhất: **AI không được ghi trực tiếp vào `state.yaml`** — hook chặn. Nếu AI ghi tay được thì nó sẽ tự phong `HUMAN_APPROVED` cho chính mình, đúng cái bạn sợ.
 
-Điểm cuối là lợi thế thật sự. Yêu cầu xuyên suốt của bạn là "AI không được tự nhảy cóc qua gate" — trên Codex điều đó phụ thuộc vào việc AI có tuân thủ prompt hay không. Trên Claude Code, hook có thể **chặn cứng ở tầng harness**: gate chưa pass thì lệnh sửa code bị từ chối, bất kể AI nghĩ gì. Đó chính là thứ thiết kế của bạn cần mà Codex không cho.
+### 2.4. Traceability phải trích xuất, không được kê khai
 
-Vậy nên tôi cần bạn chọn hướng đi tiếp:
+Đây là chỗ tôi **sửa yêu cầu trong draft của bạn**.
 
-1. **Port thiết kế sang Claude Code trước** — viết lại `KIDEA_WORKFLOW_V0.1` theo cơ chế Skill + Hooks + Subagent của Claude Code, rồi mới xây.
-2. **Xử lý draft context/traceability trước** — phân tích yêu cầu còn dở của bạn thành spec chính thức, rồi gộp vào thiết kế.
-3. **Chốt spec v0.1 trước** — định nghĩa schema `.kidea/state.yaml`, template `AGENTS.md`, và hành vi 6 lệnh đầu tiên (`init`, `resume`, `status`, `doctor`, `sync`, `adopt`).
+Bạn viết: *"Sau khi xong 1 task con thì update trong 1 file index... để biết các file/module đang gọi đến đâu và được đâu gọi đến."*
 
-Tôi đề xuất **thứ tự 2 → 1 → 3**: draft của bạn ảnh hưởng tới schema traceability, nên chốt nó trước khi viết schema sẽ đỡ phải sửa lại. Nhưng nếu bạn muốn thấy `kidea` chạy được sớm thì đảo lại cũng hợp lý.
+Nếu **AI tự tay update** index đó, nó sẽ lệch khỏi thực tế trong vài ngày, rồi AI sẽ tin vào index sai — tức là hallucinate, đúng cái bạn đang chống. Index do AI kê khai không đáng tin hơn trí nhớ AI.
 
-Một đề xuất nhỏ: repo nên có `CLAUDE.md` (hoặc symlink tới `AGENTS.md`) để Claude Code tự nạp quy tắc project ở mỗi session mới. Bạn muốn tôi tạo không?
+Bạn đã nói đúng từ khoá mà chưa khai thác hết: **Doxygen**. Doxygen không bắt ai duy trì file index — nó **đọc source có annotation rồi tự sinh index**. Đó mới là mô hình đúng.
+
+Nên chia hai lớp:
+
+**Lớp dẫn xuất** (máy đọc, không ai viết): call graph, import graph — trích bằng tree-sitter từ source. Không thể sai, vì code đổi thì lần chạy sau ra kết quả mới.
+
+**Lớp ngữ nghĩa** (viết *trong code*, không ra file riêng):
+
+```python
+# @kidea:feature FEAT-MVP-ORDER-LIMIT
+# @kidea:implements BR-BAL-003, BR-BAL-004
+def reserve_balance(user_id: str, amount: Decimal) -> ReservationId:
+```
+
+Annotation **nằm cạnh code** nên ai sửa hàm cũng nhìn thấy. File index tách rời thì không ai nhìn thấy, nên không ai update. Và câu hỏi *"sửa BR-BAL-003 thì ảnh hưởng đâu"* thành một truy vấn graph do script trả lời.
+
+### 2.5. Đơn vị version là CHANGE, không phải session
+
+Logic của bạn đúng, nhưng "session" là khái niệm sai để lưu — nó chết khi bạn đóng terminal, và một tháng sau `session_id: 8f3a` không nói lên gì.
+
+Thay bằng **CHANGE record**, thứ tồn tại lâu dài và review được. Quy tắc của bạn giữ nguyên, chỉ đổi trục: `synced_with` bằng change hiện tại thì bỏ qua; cũ hơn thì **bắt buộc** xem lại. Upstream đổi hash thì downstream chuyển `STALE` và approval bị thu hồi — script làm, không phải AI.
+
+### 2.6. Context sạch cho sub-task chính là subagent
+
+Yêu cầu đầu tiên trong draft của bạn. Trên Codex phải làm tay; trên Claude Code là cơ chế có sẵn — **subagent chạy trong context window riêng, hoàn toàn sạch**.
+
+Thiết kế: script tính **context pack** từ `graph.json` cho mỗi sub-task (đúng BR nó implement, đúng LT nó phải pass, đúng file nó được sửa, neighbor trong call graph), rồi mỗi sub-task chạy trong một subagent chỉ nhận pack đó. AI không phải đoán cần đọc file nào — nó được đưa đúng thứ cần. Vừa sạch, vừa tiết kiệm token, đúng như bạn mô tả.
+
+## 3. Cắt quy mô
+
+Bản cũ có ~40 lệnh và ~50 thư mục `docs/`. Số đó không bao giờ xây xong. Tôi thu về **8 lệnh**:
+
+`init` · `status` · `check` · `index` · `next` · `approve` · `impact` · `change <type>`
+
+9 lệnh `change *` cũ thành một lệnh có tham số `type` — mỗi type nạp checklist riêng, nhưng chỉ một đường code.
+
+## 4. Cần bạn chốt 4 điểm
+
+1. **Ngôn ngữ script** — tôi đề xuất Python (có tree-sitter, chạy được trong hook). Bạn có ràng buộc gì không?
+2. **Ngôn ngữ của project đầu tiên dùng kidea** — parser phải viết theo ngôn ngữ, v0.1 nên hỗ trợ một cái trước.
+3. **Mức chặt của hook** — tôi đề xuất chặn cứng với code, cảnh báo với docs.
+4. **Có xây kidea bằng chính kidea không?** — tôi đề xuất **không** cho v0.1. Xây tay, dùng thật, rồi mới tính.
+
+Chốt xong 4 điểm, bước kế tiếp là đặc tả chính xác `state.yaml`, `graph.json` và hành vi 6 lệnh v0.1 — rồi bắt đầu code.
+
+---
+
+Một lưu ý cuối: bạn nói đặt hết niềm tin vào tôi. Tôi nhận, nhưng xin nói thẳng một điều — thiết kế trên là **đề xuất của tôi, chưa được kiểm chứng bằng việc chạy thật**. Điểm 2.4 và 2.6 tôi tự tin vì chúng dựa trên cơ chế có sẵn. Điểm 2.1 (hook chặn cứng) tôi tin đúng hướng nhưng chi tiết contract của hook phải xác minh khi code. Cứ phản biện chỗ nào bạn thấy sai — bạn hiểu bài toán của mình hơn tôi.
