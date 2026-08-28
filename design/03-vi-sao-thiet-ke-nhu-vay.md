@@ -94,7 +94,7 @@ Nếu **AI tự tay update** file index đó, nó sẽ lệch khỏi thực tế
 
 Bạn đã nói đúng từ khoá mà chưa khai thác hết: **Doxygen**. Doxygen không bắt ai duy trì file index. Nó **đọc source code có annotation rồi tự sinh index**. Đó mới là mô hình đúng.
 
-Nên `kidea` chia index thành **ba tấm bản đồ** — nghiệp vụ, code, và cầu nối giữa hai bên. Chi tiết ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md) mục 5.
+Nên `kidea` chia index thành **ba tấm bản đồ** — nghiệp vụ, code, và cầu nối giữa hai bên. Chi tiết ở [`01-BO-MAY.md`](01-BO-MAY.md) mục 5.
 
 **Tấm code — máy tự đọc, không ai viết:**
 ai gọi ai, ai bị ai gọi, file nào import file nào. Trích bằng parser từ chính source. Không thể sai, vì code đổi thì lần chạy sau ra kết quả mới.
@@ -324,9 +324,9 @@ Bản cũ liệt kê khoảng 40 lệnh. Số đó không bao giờ được xâ
 
 Human đã chốt: **không chia phiên bản.** Xây một bản đầy đủ, nhưng chỉ đúng thứ cần dùng.
 
-Toàn bộ phạm vi và danh sách những thứ cố tình không làm nằm ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md) mục 12.
+Toàn bộ phạm vi và danh sách những thứ cố tình không làm nằm ở [`01-BO-MAY.md`](01-BO-MAY.md) mục 12.
 
-Không chia phiên bản khác với làm mọi thứ cùng lúc. Thứ tự xây vẫn tồn tại, và được sắp sao cho Human nhìn thấy thứ chạy được sớm nhất — xem `KIDEA_SPEC.md` mục 13.
+Không chia phiên bản khác với làm mọi thứ cùng lúc. Thứ tự xây vẫn tồn tại, và được sắp sao cho Human nhìn thấy thứ chạy được sớm nhất — xem `01-BO-MAY.md` mục 13.
 
 ---
 
@@ -381,4 +381,4 @@ flowchart TD
 | 4 | Xây kidea bằng kidea | **Không** |
 | 5 | Chia phiên bản | **Không.** Xây một bản đầy đủ |
 
-Đặc tả chi tiết dựa trên bốn quyết định này nằm ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md). Lưu ý quyết định số 3 cần diễn giải để không tự khoá chính nó — xem mục 1 của bản spec.
+Đặc tả chi tiết dựa trên bốn quyết định này nằm ở [`01-BO-MAY.md`](01-BO-MAY.md). Lưu ý quyết định số 3 cần diễn giải để không tự khoá chính nó — xem mục 1 của bản spec.

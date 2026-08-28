@@ -6,4 +6,4 @@ Trạng thái: Bản nháp nguyên văn từ Human, chưa phân tích hoặc ch�
 
 ---
 
-Đã phân tích thành thiết kế chính thức tại [`design/KIDEA_DESIGN.md`](../design/KIDEA_DESIGN.md) — xem mục 1.4 (traceability trích xuất thay vì kê khai), 1.5 (CHANGE thay cho session) và 1.6 (context pack và subagent).
+Đã phân tích thành thiết kế chính thức tại [`design/03-vi-sao-thiet-ke-nhu-vay.md`](../design/03-vi-sao-thiet-ke-nhu-vay.md) — xem mục 1.4 (traceability trích xuất thay vì kê khai), 1.5 (CHANGE thay cho session) và 1.6 (context pack và subagent).

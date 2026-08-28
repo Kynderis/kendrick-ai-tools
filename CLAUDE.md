@@ -10,7 +10,7 @@ Repo thiết kế **`kidea`** (kendrick + idea): một Skill cho Claude Code bi�
 
 | Thư mục | Nội dung |
 |---|---|
-| `design/` | Thiết kế `kidea` đang có hiệu lực |
+| `design/` | Thiết kế `kidea`. Đọc `00-BAT-DAU-TU-DAY.md` trước, các file khác là tra cứu |
 | `conversations/` | Lịch sử thảo luận thiết kế, dạng nguyên văn |
 | `drafts/` | Yêu cầu thô từ Human, chưa phân tích |
 | `answer.md` | Bản mirror câu trả lời cuối cùng (xem bên dưới) |

@@ -2,9 +2,9 @@
 
 Trạng thái: **Chờ Human duyệt**
 Cập nhật: 2026-08-29
-Tài liệu nền: [`KIDEA_SPEC.md`](KIDEA_SPEC.md)
+Tài liệu nền: [`01-BO-MAY.md`](01-BO-MAY.md)
 
-`KIDEA_SPEC.md` đặc tả **bộ máy**: cuốn sổ, người gác, ba bản đồ, chín lệnh. Tài liệu này đặc tả **công việc**: AI thực sự làm gì ở mỗi trạm.
+`01-BO-MAY.md` đặc tả **bộ máy**: cuốn sổ, người gác, ba bản đồ, chín lệnh. Tài liệu này đặc tả **công việc**: AI thực sự làm gì ở mỗi trạm.
 
 Đây là phần chiếm 90% thời gian chạy thật, và trước đó chưa có dòng nào.
 
@@ -413,7 +413,7 @@ Khi cả `logical_tests` lẫn mọi `ux_*` áp dụng đều duyệt xong: `mil
 
 ### Mở bậc
 
-`milestone: 5` — nhưng bậc 5 mở **theo từng tính năng** qua `/kidea slice start`, không mở đại trà. Xem `KIDEA_SPEC.md` mục 15.2.
+`milestone: 5` — nhưng bậc 5 mở **theo từng tính năng** qua `/kidea slice start`, không mở đại trà. Xem `01-BO-MAY.md` mục 15.2.
 
 ---
 

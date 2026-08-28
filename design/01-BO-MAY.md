@@ -2,7 +2,7 @@
 
 Trạng thái: **Chờ Human duyệt**
 Cập nhật: 2026-08-28
-Tài liệu nền: [`KIDEA_DESIGN.md`](KIDEA_DESIGN.md)
+Tài liệu nền: [`03-vi-sao-thiet-ke-nhu-vay.md`](03-vi-sao-thiet-ke-nhu-vay.md)
 
 Bản đặc tả **đầy đủ và cuối cùng**, không chia phiên bản. Mọi thứ ghi trong đây sẽ được xây. Mọi thứ không ghi thì cố tình không xây — lý do ở mục 12.
 
@@ -77,8 +77,8 @@ Mỗi project có bố cục khác nhau. `kidea.yaml` khai bảng ánh xạ đư
 kendrick-ai-tools-claude/
 ├── CLAUDE.md
 ├── design/
-│   ├── KIDEA_DESIGN.md
-│   └── KIDEA_SPEC.md
+│   ├── 03-vi-sao-thiet-ke-nhu-vay.md
+│   └── 01-BO-MAY.md
 └── skill/kidea/
     ├── SKILL.md
     ├── scripts/
@@ -810,10 +810,10 @@ Bộ máy là: cuốn sổ, người gác, ba bản đồ, chín lệnh, luật 
 
 Công việc là: **AI thực sự làm gì ở mỗi trạm.** Ví dụ ở trạm `requirements`, "audit nghiệp vụ" nghĩa là gì? Kiểm theo danh sách nào? Thế nào là "đủ rõ"? Tài liệu ra trông như thế nào?
 
-Phần đó chiếm 90% thời gian chạy thật, và hiện chưa có một dòng nào. Nó nằm ở [`KIDEA_STATIONS.md`](KIDEA_STATIONS.md).
+Phần đó chiếm 90% thời gian chạy thật, và hiện chưa có một dòng nào. Nó nằm ở [`02-CONG-VIEC-TUNG-TRAM.md`](02-CONG-VIEC-TUNG-TRAM.md).
 
 ---
 
 ## 17. Cần Human quyết
 
-Không còn câu nào chặn việc code bộ máy. Câu duy nhất còn lại thuộc về `KIDEA_STATIONS.md`.
+Không còn câu nào chặn việc code bộ máy. Câu duy nhất còn lại thuộc về `02-CONG-VIEC-TUNG-TRAM.md`.
