@@ -67,7 +67,7 @@ Nếu thông tin có thể tái tạo nhanh và chính xác từ repository thì
 Skill sẽ được gọi rõ ràng bằng `$kidea`. Ta chưa cần hàng chục command; vòng làm việc cốt lõi chỉ là:
 
 ```text
-Nạp context → Lập plan → Thực hiện → Kiểm chứng → Ghi nhận → Chỉ bước tiếp theo
+Nạp context → Lập plan → Thực hiện → Kiểm chứng → Ghi nhận → Chỉ ra bước tiếp theo
 ```
 
 ## 5. Viết các tình huống nghiệm thu
