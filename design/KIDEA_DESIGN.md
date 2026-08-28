@@ -1,4 +1,4 @@
-# KIDEA — Thiết kế cho Claude Code, v0.1
+# KIDEA — Thiết kế cho Claude Code
 
 Trạng thái: **Đề xuất, chờ Human chốt**
 Ngày: 2026-08-28
@@ -70,7 +70,7 @@ Nhiều feature ở nhiều trạng thái khác nhau cùng lúc là **bình thư
 
 ### 1.3. Bốn file, không phải một cây thư mục
 
-Bản cũ đề xuất `.kidea/` với `project.yaml`, `state.yaml`, `workflow.yaml`, `traceability.yaml`, `schemas/`, `approvals/`, `history/`. Quá nhiều bộ phận chuyển động cho v0.1, và mỗi file thêm vào là một chỗ để lệch nhau.
+Bản cũ đề xuất `.kidea/` với `project.yaml`, `state.yaml`, `workflow.yaml`, `traceability.yaml`, `schemas/`, `approvals/`, `history/`. Quá nhiều bộ phận chuyển động, và mỗi file thêm vào là một chỗ để lệch nhau.
 
 ```text
 .kidea/
@@ -297,7 +297,7 @@ Hai trục `ai` và `human` tách hẳn nhau. **Script từ chối set `human: A
 
 ---
 
-## 4. Command surface v0.1 — 8 lệnh
+## 4. Command surface — gọn lại còn 9 lệnh
 
 Bản cũ liệt kê khoảng 40 lệnh. Số đó không bao giờ được xây xong, và phần lớn chỉ là "một template tài liệu cộng một gate". Gộp lại:
 
@@ -316,18 +316,13 @@ Bản cũ liệt kê khoảng 40 lệnh. Số đó không bao giờ được xâ
 
 ---
 
-## 5. Roadmap
+## 5. Phạm vi
 
-**v0.1 — cái xương sống phải chạy được**
-`init` / `status` / `check` / `index` / `approve` / `impact`; state schema; hook chặn gate; annotation và extraction cho một ngôn ngữ; requirements audit; logical test generation.
+Human đã chốt: **không chia phiên bản.** Xây một bản đầy đủ, nhưng chỉ đúng thứ cần dùng.
 
-**v0.2 — vòng lặp xây dựng**
-`next` / `change`; context pack và subagent orchestration; vertical slice; UX import; architecture baseline.
+Toàn bộ phạm vi và danh sách những thứ cố tình không làm nằm ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md) mục 12.
 
-**v0.3 — ra sản phẩm**
-Walking skeleton; DEV deploy; production readiness gate; hotfix và waiver.
-
-Áp dụng chính triết lý của bạn vào `kidea`: bắt đầu nhỏ, làm chắc, rồi mới mở.
+Không chia phiên bản khác với làm mọi thứ cùng lúc. Thứ tự xây vẫn tồn tại, và được sắp sao cho Human nhìn thấy thứ chạy được sớm nhất — xem `KIDEA_SPEC.md` mục 13.
 
 ---
 
@@ -379,6 +374,7 @@ flowchart TD
 | 1 | Ngôn ngữ script | **Python** |
 | 2 | Ngôn ngữ project đầu tiên | **Rust** |
 | 3 | Mức chặt của hook | **Chặn cứng cả code lẫn tài liệu** |
-| 4 | Xây kidea bằng kidea | **Không**, ở v0.1 |
+| 4 | Xây kidea bằng kidea | **Không** |
+| 5 | Chia phiên bản | **Không.** Xây một bản đầy đủ |
 
-Đặc tả chi tiết dựa trên bốn quyết định này nằm ở [`KIDEA_SPEC_V0.1.md`](KIDEA_SPEC_V0.1.md). Lưu ý quyết định số 3 cần diễn giải để không tự khoá chính nó — xem mục 1 của bản spec.
+Đặc tả chi tiết dựa trên bốn quyết định này nằm ở [`KIDEA_SPEC.md`](KIDEA_SPEC.md). Lưu ý quyết định số 3 cần diễn giải để không tự khoá chính nó — xem mục 1 của bản spec.
