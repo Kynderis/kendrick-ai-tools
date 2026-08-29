@@ -1,14 +1,15 @@
 # KIDEA — Bắt đầu từ đây
 
-Cập nhật: 2026-08-29 · Trạng thái: **chờ duyệt**
+Cập nhật: 2026-08-30 · Trạng thái: **chờ duyệt**
 
-Đây là tài liệu chính. Đọc hết cái này là đủ để quyết định. Ba tài liệu còn lại chỉ để tra khi cần.
+Đây là tài liệu chính. Đọc file này và `04-BAN-DO-NGHIEP-VU.md` là đủ để quyết định. Ba file còn lại chỉ để tra khi cần.
 
 | File | Đọc khi nào |
 |---|---|
 | **`00-BAT-DAU-TU-DAY.md`** ← bạn đang đọc | Luôn. Đọc để duyệt |
 | `01-BO-MAY.md` | Khi muốn kiểm tra một cơ chế cụ thể |
 | `02-CONG-VIEC-TUNG-TRAM.md` | Khi muốn kiểm tra AI phải làm gì ở mỗi bước |
+| **`04-BAN-DO-NGHIEP-VU.md`** | **Cách biểu diễn nghiệp vụ thành bản đồ máy đọc được. Đọc cùng file này** |
 | `03-vi-sao-thiet-ke-nhu-vay.md` | Khi thắc mắc "sao không làm cách khác" |
 
 ---
@@ -167,72 +168,41 @@ flowchart TD
 
 ---
 
-## 4. Ba cấp nghiệp vụ
+## 4. Năm loại mảnh ghép nghiệp vụ
 
-Đây là mô hình bạn đề xuất. Tôi nêu lại để bạn kiểm, kèm một chỗ tôi chỉnh.
+Chi tiết đầy đủ ở [`04-BAN-DO-NGHIEP-VU.md`](04-BAN-DO-NGHIEP-VU.md). Tóm tắt:
 
-| Cấp | Mã | Là gì | Ví dụ |
+| Loại | Mã | Là gì | Ví dụ |
 |---|---|---|---|
-| **Tính năng** | `FEAT-*` | Thứ người dùng thấy và dùng | Đặt lệnh Limit |
-| **Logic** | `LOGIC-*` | Một phát biểu nghiệp vụ, đúng hoặc sai, kiểm được | "Số dư bị giữ ngay khi lệnh được nhận" |
-| **Thực thể** | `ENT-*` | Danh từ nghiệp vụ mà nhiều logic cùng động vào | Số dư, Lệnh, Sổ lệnh |
+| **Miền** | `DOM-*` | Vùng lớn, thuần gom nhóm | Đăng nhập và Tài khoản |
+| **Tính năng** | `FEAT-*` | Thứ người dùng gọi tên được, đòi được | Đăng nhập bằng Google |
+| **Năng lực** | `CAP-*` | Việc dùng chung, không ai đòi nhưng nhiều tính năng cần | Quản lý thiết bị |
+| **Luật** | `LOGIC-*` | Phát biểu nguyên tử, **kiểm được đúng/sai** | Tối đa 5 thiết bị hoạt động |
+| **Thực thể** | `ENT-*` | Thứ có trạng thái, sống qua nhiều request | Thiết bị · Số dư |
 
-### Ghép và tách
+### Thế nào là đơn vị nhỏ nhất — phép thử, không phải cảm tính
 
-```mermaid
-flowchart TD
-    F1["FEAT Đặt lệnh Limit"] -->|"gồm"| F2["FEAT Xác thực người dùng"]
-    F1 -->|"dùng"| L1["LOGIC Giữ số dư"]
-    F1 -->|"dùng"| L2["LOGIC Đẩy lệnh vào sổ"]
-    L1 -->|"gồm"| L3["LOGIC Tính số dư khả dụng"]
-    L1 -->|"ghi"| E1["ENT Số dư"]
-    L3 -->|"đọc"| E1
-    L2 -->|"ghi"| E2["ENT Sổ lệnh"]
-```
+> **Một mảnh là Luật khi bạn viết được một test trả lời đúng/sai cho riêng nó.**
 
-Một tính năng ghép từ tính năng khác cộng logic. Một logic ghép từ logic khác cộng thực thể. Thực thể là đáy.
+"Tối đa 5 thiết bị" — thêm cái thứ 6 phải bị từ chối, test được → là Luật.
+"Quản lý thiết bị an toàn" — không test được → chưa phải luật, còn phải chẻ.
 
-### Chỗ tôi chỉnh so với đề xuất của bạn
-
-Bạn nói TTNV là *"đơn vị nhỏ nhất trong nghiệp vụ, kiểu như **quản lý số dư của 1 user**"*.
-
-Tôi đề nghị đổi một chút: **thực thể là cái danh từ "Số dư", không phải cái việc "quản lý số dư"**.
-
-Vì sao:
-
-| | "Số dư" (danh từ) | "Quản lý số dư" (việc) |
-|---|---|---|
-| Có bao nhiêu cách gọi | Một | Nhiều: quản lý số dư, xử lý số dư, kiểm số dư… |
-| Máy so tên có khớp không | **Khớp** | Dễ lệch, lưới an toàn thủng |
-| Nó là gì | Thứ có trạng thái, có chủ sở hữu | Tập hợp các logic động vào thứ đó |
-
-**Cái bạn gọi là "quản lý số dư" vẫn còn nguyên** — nó chính là `ENT Số dư` cộng với **tất cả logic ghi vào nó**. Máy tính ra được, không cần thành một cấp riêng.
-
-Nói cách khác: bạn có ba cấp, tôi cũng ba cấp, chỉ khác cách đặt tên cấp dưới cùng. Danh từ làm mỏ neo tốt hơn động từ.
-
-### Ai định nghĩa và chốt thực thể
-
-Bạn hỏi câu này. Trả lời:
+### Hai loại quan hệ, và vì sao cần cả hai
 
 ```mermaid
 flowchart TD
-    A["Trạm 1 — PHẠM VI<br/>AI đọc tài liệu ChatGPT<br/>rút ra các danh từ nghiệp vụ"] --> B["AI ĐỀ XUẤT danh sách<br/>kèm lý do từng cái"]
-    B --> C["Human sửa: thêm, bớt, đổi tên, gộp"]
-    C --> D["Human gõ /kidea approve scope"]
-    D --> E["DANH SÁCH KHOÁ LẠI"]
-    E --> F["Từ đây check TỪ CHỐI<br/>mọi thực thể lạ"]
-    F --> G["Muốn thêm thực thể mới?<br/>Phải mở /kidea change<br/>và Human duyệt lại"]
+    subgraph S1["Chỉ có quan hệ CẤU TRÚC"]
+    A1["Đổi Quản lý thiết bị"] --> B1["Thấy: 3 cách đăng nhập dùng nó"]
+    B1 --> C1["BỎ SÓT: Cấp token cũng động vào<br/>Thiết bị mà không ai khai"]
+    end
+    subgraph S2["Có cả quan hệ TRẠNG THÁI"]
+    A2["Đổi Quản lý thiết bị"] --> B2["Cấu trúc: 3 cách đăng nhập"]
+    A2 --> C2["Trạng thái: ai còn đọc/ghi Thiết bị?"]
+    C2 --> D2["BẮT ĐƯỢC: Cấp token có luật<br/>huỷ phiên khi thu hồi thiết bị"]
+    end
 ```
 
-**AI đề xuất, Human chốt, sau đó khoá.** AI không bao giờ tự thêm thực thể.
-
-Tiêu chí để một thứ được làm thực thể — AI dùng để lọc, Human dùng để kiểm:
-
-| Câu hỏi | Phải trả lời |
-|---|---|
-| Nó có trạng thái sống qua nhiều request không? | Có. "Số dư" có; "giá hiển thị trên màn" không |
-| Có từ hai logic trở lên động vào nó không? | Có. Một logic động vào thì chưa cần tách ra |
-| Có ai đó phải làm chủ nó không? | Có. Sang trạm kiến trúc, mỗi thực thể được gán đúng một service làm chủ |
+> **Cấu trúc cho biết bạn *nghĩ* cái gì liên quan. Trạng thái cho biết cái gì *thực sự* liên quan.**
 
 ---
 
@@ -244,7 +214,7 @@ Tiêu chí để một thứ được làm thực thể — AI dùng để lọc
 | **CODE** | *Sửa hàm này thì ai gọi nó?* | Máy tự đọc source, không ai can thiệp |
 | **CẦU NỐI** | *Logic này nằm ở đoạn code nào?* | AI viết chú thích khi nó code |
 
-Bản đồ NGHIỆP VỤ chứa đúng ba cấp ở mục 4, cùng các cạnh `gồm` / `dùng` / `đọc` / `ghi` / `thay-thế`.
+Bản đồ NGHIỆP VỤ chứa năm loại mảnh ghép ở mục 4, cùng hai loại cạnh: cấu trúc (`gồm` / `dùng`) và trạng thái (`làm chủ` / `đọc` / `ghi`).
 
 ### Vì sao thực thể là lưới an toàn
 
@@ -496,7 +466,7 @@ Lớp 2 quan trọng: **người soát không phải người soạn**. Nó khô
 
 | # | Duyệt gì | Ở mục |
 |:--:|---|---|
-| 1 | **Ba cấp nghiệp vụ**, và chỗ tôi chỉnh: thực thể là danh từ, không phải việc | 4 |
+| 1 | **Năm loại mảnh ghép** và bảy luật chia node | `04-BAN-DO-NGHIEP-VU.md` |
 | 2 | **Luồng chốt thực thể**: AI đề xuất → Human chốt → khoá lại | 4 |
 | 3 | **Luật lan truyền đệ quy** hai mức, và nhánh dừng vẫn phải test lại | 6 |
 | 4 | **Tám trạm**, đặc biệt trạm 7 vừa thêm | 7 |
