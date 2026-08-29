@@ -49,7 +49,7 @@ Ví dụ với `milestone: 2`:
 | Đường dẫn | Bậc | Kết quả |
 |---|:---:|---|
 | `docs/product/overview.md` | 1 | CHO |
-| `docs/requirements/BR-BAL-003.md` | 2 | CHO |
+| `docs/requirements/LOGIC-BAL-003.md` | 2 | CHO |
 | `docs/logical-tests/LT-ORDER-0042.md` | 3 | CHẶN |
 | `src/balance/reserve.cpp` | 5 | CHẶN |
 
@@ -255,7 +255,7 @@ flowchart LR
 | Loại node | Nghĩa | Ví dụ |
 |---|---|---|
 | `FEAT-*` | Tính năng | `FEAT-MVP-ORDER-LIMIT` |
-| `BR-*` | Quy tắc nghiệp vụ | `BR-BAL-002` |
+| `LOGIC-*` | Quy tắc nghiệp vụ | `LOGIC-BAL-002` |
 | `INV-*` | Bất biến, luôn phải đúng | `INV-BALANCE-001` |
 | `ENT-*` | **Thực thể nghiệp vụ** | `ENT-BALANCE`, `ENT-ORDER` |
 | `LT-*` | Logical test | `LT-ORDER-0042` |
@@ -265,14 +265,14 @@ Nguồn: **frontmatter của file markdown**, do AI viết khi soạn tài liệ
 
 ```yaml
 ---
-id: BR-BAL-002
-kind: business-rule
+id: LOGIC-BAL-002
+kind: logic
 feature: FEAT-MVP-ORDER-LIMIT
 title: "Số dư tách thành khả dụng và bị giữ"
 reads:  [ENT-BALANCE]
 writes: [ENT-BALANCE]
-depends_on: [BR-ACCOUNT-001]
-supersedes: [BR-BAL-001]
+depends_on: [LOGIC-ACCOUNT-001]
+supersedes: [LOGIC-BAL-001]
 ---
 ```
 
@@ -281,22 +281,22 @@ supersedes: [BR-BAL-001]
 **Trước** — sàn chỉ có lệnh Market:
 
 ```yaml
-id: BR-BAL-001
+id: LOGIC-BAL-001
 title: "Số dư là một con số tổng"
 feature: FEAT-MVP-ORDER-MARKET
 writes: [ENT-BALANCE]
 ```
 
-**Sau** — thêm lệnh Limit, AI soạn `BR-BAL-002` và khai `supersedes: [BR-BAL-001]`.
+**Sau** — thêm lệnh Limit, AI soạn `LOGIC-BAL-002` và khai `supersedes: [LOGIC-BAL-001]`.
 
 kidea chạy `check`:
 
 ```mermaid
 flowchart TD
-    A["BR-BAL-002 khai<br/>supersedes BR-BAL-001"] --> B["BR-BAL-001 chuyển STALE"]
-    C["Phát hiện thêm:<br/>BR-BAL-001 và BR-BAL-002<br/>cùng ghi ENT-BALANCE"] --> D["CẢNH BÁO xung đột<br/>hai quy tắc tranh nhau<br/>một thực thể"]
-    B --> E["Mọi LT cover BR-BAL-001<br/>chuyển STALE"]
-    E --> F["Qua BẢN ĐỒ CẦU NỐI:<br/>mọi hàm khai implements BR-BAL-001<br/>chuyển IMPACT_REVIEW"]
+    A["LOGIC-BAL-002 khai<br/>supersedes LOGIC-BAL-001"] --> B["LOGIC-BAL-001 chuyển STALE"]
+    C["Phát hiện thêm:<br/>LOGIC-BAL-001 và LOGIC-BAL-002<br/>cùng ghi ENT-BALANCE"] --> D["CẢNH BÁO xung đột<br/>hai quy tắc tranh nhau<br/>một thực thể"]
+    B --> E["Mọi LT cover LOGIC-BAL-001<br/>chuyển STALE"]
+    E --> F["Qua BẢN ĐỒ CẦU NỐI:<br/>mọi hàm khai implements LOGIC-BAL-001<br/>chuyển IMPACT_REVIEW"]
     F --> G["Qua BẢN ĐỒ CODE:<br/>mọi hàm GỌI TỚI những hàm đó<br/>được liệt kê để kiểm tra"]
     G --> H["/kidea change close TỪ CHỐI<br/>chừng nào còn sót"]
 ```
@@ -343,7 +343,7 @@ Tấm này **không cần ai duyệt** vì nó không phải ý kiến — nó l
 Nguồn: **annotation trong code**, do AI viết khi nó code.
 
 ```cpp
-/// @kidea:implements BR-BAL-002
+/// @kidea:implements LOGIC-BAL-002
 /// @kidea:invariant  INV-BALANCE-001
 ReservationId reserve_balance(const UserId& user, Decimal amount);
 ```
@@ -355,7 +355,7 @@ TEST(BalanceTest, ReserveLocksAtomically) { }
 
 | Cạnh | Từ | Tới |
 |---|---|---|
-| `implements` | symbol | `BR-*` |
+| `implements` | symbol | `LOGIC-*` |
 | `guards` | symbol | `INV-*` |
 | `covers` | test symbol | `LT-*` |
 | `owns` | module | `ENT-*` |
@@ -366,14 +366,14 @@ TEST(BalanceTest, ReserveLocksAtomically) { }
 
 ```mermaid
 flowchart LR
-    A["BR-BAL-001<br/>đổi"] -->|"bản đồ NGHIỆP VỤ"| B["BR-BAL-002<br/>cùng ghi ENT-BALANCE"]
+    A["LOGIC-BAL-001<br/>đổi"] -->|"bản đồ NGHIỆP VỤ"| B["LOGIC-BAL-002<br/>cùng ghi ENT-BALANCE"]
     A -->|"bản đồ NGHIỆP VỤ"| C["LT-ORDER-0042<br/>0043, 0051"]
     A -->|"bản đồ CẦU NỐI"| D["reserve_balance()"]
     D -->|"bản đồ CODE"| E["place_order()<br/>risk_precheck()"]
     C -->|"bản đồ CẦU NỐI"| F["test_reserve_locks()"]
 ```
 
-`/kidea impact BR-BAL-001` đi hết cả ba và in ra một danh sách duy nhất.
+`/kidea impact LOGIC-BAL-001` đi hết cả ba và in ra một danh sách duy nhất.
 
 ### 5.5. Vì sao tách ba file thay vì một
 
@@ -423,10 +423,10 @@ Annotation không được tin vì "AI khai thì chắc đúng". Nó được ti
 
 | Luật kiểm tra | Bắt được lỗi gì |
 |---|---|
-| Mọi `BR` phải có ít nhất một symbol khai `implements` | Quy tắc chưa ai code |
+| Mọi `LOGIC` phải có ít nhất một symbol khai `implements` | Quy tắc chưa ai code |
 | Mọi symbol trong đường dẫn nghiệp vụ phải khai `implements` | AI code mà quên khai |
 | Mọi `LT` phải có ít nhất một test khai `covers` | Test case chưa có test code |
-| Mọi ID trong annotation phải tồn tại thật trong bản đồ NGHIỆP VỤ | AI bịa ra `BR-BAL-999` |
+| Mọi ID trong annotation phải tồn tại thật trong bản đồ NGHIỆP VỤ | AI bịa ra `LOGIC-BAL-999` |
 | Symbol khai `implements BR-X` nhưng `BR-X` đã `supersedes` | Code đang chạy theo quy tắc hết hiệu lực |
 
 Bốn luật đầu **đối chiếu bản đồ CẦU NỐI với bản đồ NGHIỆP VỤ và CODE**. Một file index tách rời không có gì để đối chiếu, nên không kiểm được. Đó mới là khác biệt thật, chứ không phải chuyện ai gõ phím.
@@ -557,9 +557,9 @@ Chỉ đọc. Mốc, bảng tính năng, blocker kèm đề xuất AI, danh sác
 | `state.yaml` đúng schema | — | Lỗi nặng |
 | Mọi ID được nhắc đều tồn tại | 3 bản đồ | Lỗi nặng |
 | Không có ID trùng | 3 bản đồ | Lỗi nặng |
-| Hai `BR` cùng `writes` một `ENT` | NGHIỆP VỤ | **Cảnh báo xung đột** |
-| `BR` bị `supersedes` mà code vẫn khai `implements` | 1 + 3 | **Cảnh báo nặng** |
-| `BR` chưa có symbol nào `implements` | 1 + 3 | Cảnh báo |
+| Hai `LOGIC` cùng `writes` một `ENT` | NGHIỆP VỤ | **Cảnh báo xung đột** |
+| `LOGIC` bị `supersedes` mà code vẫn khai `implements` | 1 + 3 | **Cảnh báo nặng** |
+| `LOGIC` chưa có symbol nào `implements` | 1 + 3 | Cảnh báo |
 | `LT` chưa có test nào `covers` | 1 + 3 | Cảnh báo |
 | Symbol trong đường dẫn nghiệp vụ chưa khai `implements` | 2 + 3 | Cảnh báo |
 | Hash tài liệu đã duyệt còn khớp | state | Thu hồi approval |
@@ -583,7 +583,7 @@ Băm từng file thuộc gate; hash gate = băm của danh sách `(đường d�
 
 Đi xuyên ba bản đồ như mục 5.4, in theo nhóm, kèm approval sẽ bị thu hồi. Cạnh `approximate` và `inferred` in kèm cảnh báo.
 
-Nhận mọi loại ID: `BR-*`, `ENT-*`, `LT-*`, `FEAT-*`, hoặc đường dẫn file.
+Nhận mọi loại ID: `LOGIC-*`, `ENT-*`, `LT-*`, `FEAT-*`, hoặc đường dẫn file.
 
 ### `/kidea change <type> "<lý do>"`
 
@@ -759,7 +759,7 @@ Sinh ra file `.kidea/packs/<task-id>.md`, cấu trúc cố định:
 Thuộc: FEAT-MVP-ORDER-LIMIT · CHANGE-2026-0042
 
 ## Phải thực hiện
-BR-BAL-002 — <tóm tắt 1 dòng> — docs/requirements/business-rules/BR-BAL-002.md
+LOGIC-BAL-002 — <tóm tắt 1 dòng> — docs/requirements/logics/LOGIC-BAL-002.md
 INV-BALANCE-001 — <tóm tắt>
 
 ## Phải pass
@@ -774,7 +774,7 @@ Gọi tới đây: order::place_order, risk::precheck
 Từ đây gọi ra: db::transaction
 
 ## Thực thể động vào
-ENT-BALANCE — quy tắc khác cũng ghi: BR-BAL-001 (đã retired), BR-BAL-004
+ENT-BALANCE — quy tắc khác cũng ghi: LOGIC-BAL-001 (đã retired), LOGIC-BAL-004
 
 ## Bắt buộc
 - Mọi hàm mới phải có @kidea:implements

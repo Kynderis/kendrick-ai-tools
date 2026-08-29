@@ -139,10 +139,10 @@ Với **từng tính năng MVP**:
 
 1. Đọc tài liệu nguồn phần liên quan.
 2. Soạn tài liệu nghiệp vụ theo mẫu ở dưới.
-3. Tách các quy tắc rời rạc thành `BR-*` riêng, mỗi quy tắc một file.
+3. Tách các quy tắc rời rạc thành `LOGIC-*` riêng, mỗi quy tắc một file.
 4. Xác định `INV-*` — điều luôn phải đúng, bất kể luồng nào.
-5. Khai `reads` / `writes` `ENT` cho từng `BR`.
-6. Khai `depends_on` / `supersedes` giữa các `BR`.
+5. Khai `reads` / `writes` `ENT` cho từng `LOGIC`.
+6. Khai `depends_on` / `supersedes` giữa các `LOGIC`.
 7. Điền danh sách soát, **mỗi dòng trích câu cụ thể**.
 8. Chạy subagent audit context sạch để soát lại.
 9. Chỗ nào thiếu thì tạo `blocker` kèm đề xuất, **không tự quyết**.
@@ -153,14 +153,14 @@ Với **từng tính năng MVP**:
 docs/requirements/
 ├── features/
 │   └── FEAT-MVP-ORDER-LIMIT.md      # tài liệu tính năng
-├── business-rules/
-│   ├── BR-BAL-002.md                # mỗi quy tắc một file
-│   └── BR-ORDER-007.md
+├── logics/
+│   ├── LOGIC-BAL-002.md                # mỗi quy tắc một file
+│   └── LOGIC-ORDER-007.md
 └── invariants/
     └── INV-BALANCE-001.md
 ```
 
-Tách mỗi `BR` một file vì **băm nội dung theo từng quy tắc**. Gộp chung một file thì sửa một quy tắc làm hash cả file đổi, và mọi thứ liên quan tới các quy tắc khác cũng bị đánh dấu chưa đồng bộ oan.
+Tách mỗi `LOGIC` một file vì **băm nội dung theo từng quy tắc**. Gộp chung một file thì sửa một quy tắc làm hash cả file đổi, và mọi thứ liên quan tới các quy tắc khác cũng bị đánh dấu chưa đồng bộ oan.
 
 ### Mẫu tài liệu tính năng
 
@@ -202,14 +202,15 @@ entities: [ENT-BALANCE, ENT-ORDER, ENT-ORDERBOOK]
 
 ```markdown
 ---
-id: BR-BAL-002
-kind: business-rule
+id: LOGIC-BAL-002
+kind: logic
 feature: FEAT-MVP-ORDER-LIMIT
 title: "Số dư tách thành khả dụng và bị giữ"
 reads:  [ENT-BALANCE]
 writes: [ENT-BALANCE]
-depends_on: [BR-ACCOUNT-001]
-supersedes: [BR-BAL-001]
+gom:    [LOGIC-BAL-005]        # logic này ghép từ logic nào
+dung:   [LOGIC-ACCOUNT-001]    # logic này dùng logic nào
+supersedes: [LOGIC-BAL-001]    # thay thế logic nào
 status: active
 ---
 
@@ -232,10 +233,10 @@ status: active
 | 5 | Luồng chính | ✔ | ✔ | ✔ |
 | 6 | Luồng thay thế | — | ✔ | ✔ |
 | 7 | Kiểm tra dữ liệu vào | ✔ | ✔ | ✔ |
-| 8 | Quy tắc nghiệp vụ, mỗi cái một `BR` | ✔ | ✔ | ✔ |
+| 8 | Quy tắc nghiệp vụ, mỗi cái một `LOGIC` | ✔ | ✔ | ✔ |
 | 9 | Máy trạng thái, nếu có trạng thái | — | ✔ | ✔ |
 | 10 | Bất biến `INV` | — | ✔ | **✔ bắt buộc** |
-| 11 | `reads` / `writes` `ENT` cho mọi `BR` | ✔ | ✔ | ✔ |
+| 11 | `reads` / `writes` `ENT` cho mọi `LOGIC` | ✔ | ✔ | ✔ |
 | 12 | Quyền hạn — ai được làm gì | ✔ | ✔ | ✔ |
 | 13 | Trường hợp lỗi và cách xử lý | ✔ | ✔ | ✔ |
 | 14 | Đồng thời — hai request cùng lúc | — | ✔ | **✔ bắt buộc** |
@@ -262,7 +263,7 @@ Không cho tick suông. Mỗi dòng phải chỉ ra nội dung thật:
   evidence: "FEAT-MVP-ORDER-LIMIT.md § Đồng thời — 'Hai lệnh cùng lúc trên
              một tài khoản: số dư được giữ trong một giao dịch nguyên tử,
              lệnh thứ hai thấy số dư đã trừ.'"
-  rules: [BR-BAL-002, INV-BALANCE-001]
+  rules: [LOGIC-BAL-002, INV-BALANCE-001]
 
 - item: 15
   name: "Trùng lặp, gửi lại, timeout"
@@ -273,7 +274,7 @@ Không cho tick suông. Mỗi dòng phải chỉ ra nội dung thật:
     human_decision: null
 ```
 
-Script kiểm: mục được trích có tồn tại trong file không · `BR`/`INV` được nhắc có tồn tại không · trích dẫn có khớp nội dung file không.
+Script kiểm: mục được trích có tồn tại trong file không · `LOGIC`/`INV` được nhắc có tồn tại không · trích dẫn có khớp nội dung file không.
 
 ### Ví dụ: thế nào là chưa đủ rõ
 
@@ -305,7 +306,7 @@ Mọi dòng bắt buộc ở mức rủi ro tương ứng đều `FILLED` · kh�
 
 ### Human duyệt gì
 
-Từng `blocker` đã quyết đúng ý mình chưa · các `BR` phát biểu có đúng nghiệp vụ không · `INV` có đủ không · có quy tắc nào mình muốn mà AI chưa nghĩ ra không.
+Từng `blocker` đã quyết đúng ý mình chưa · các `LOGIC` phát biểu có đúng nghiệp vụ không · `INV` có đủ không · có quy tắc nào mình muốn mà AI chưa nghĩ ra không.
 
 ### Mở bậc
 
@@ -321,7 +322,7 @@ Khi **mọi** tính năng MVP qua trạm này: `milestone: 3`.
 
 ### AI làm
 
-Sinh test case dạng chữ, mỗi case một file, liên kết ngược tới `BR` và `INV`.
+Sinh test case dạng chữ, mỗi case một file, liên kết ngược tới `LOGIC` và `INV`.
 
 Không chỉ Given/When/Then. Với nghiệp vụ phức tạp phải có đủ các nhóm:
 
@@ -329,7 +330,7 @@ Không chỉ Given/When/Then. Với nghiệp vụ phức tạp phải có đủ 
 |---|---|
 | Luồng thuận | Luồng chính |
 | Luồng thay thế | Luồng thay thế |
-| Bảng quyết định | Tổ hợp điều kiện trong `BR` |
+| Bảng quyết định | Tổ hợp điều kiện trong `LOGIC` |
 | Chuyển trạng thái | Máy trạng thái |
 | Giá trị biên | Dòng soát 16 |
 | Vi phạm bất biến | Mỗi `INV` |
@@ -345,7 +346,7 @@ Không chỉ Given/When/Then. Với nghiệp vụ phức tạp phải có đủ 
 id: LT-ORDER-0042
 kind: logical-test
 feature: FEAT-MVP-ORDER-LIMIT
-covers: [BR-BAL-002, INV-BALANCE-001]
+covers: [LOGIC-BAL-002, INV-BALANCE-001]
 group: concurrency
 priority: CRITICAL
 ---
@@ -362,7 +363,7 @@ Thì:
 
 ### Danh sách soát
 
-Mọi `BR` có ít nhất một `LT` phủ · mọi `INV` có ít nhất một `LT` thử vi phạm · mọi trạng thái trong máy trạng thái có `LT` đi vào và đi ra · mọi dòng soát bắt buộc ở trạm requirements có `LT` tương ứng · không có `LT` trùng nhau · không có `LT` mâu thuẫn nhau.
+Mọi `LOGIC` có ít nhất một `LT` phủ · mọi `INV` có ít nhất một `LT` thử vi phạm · mọi trạng thái trong máy trạng thái có `LT` đi vào và đi ra · mọi dòng soát bắt buộc ở trạm requirements có `LT` tương ứng · không có `LT` trùng nhau · không có `LT` mâu thuẫn nhau.
 
 ### Human duyệt gì
 
@@ -378,7 +379,7 @@ Bộ thiết kế nhập từ ngoài vào bằng `/kidea design import <path>`, 
 
 ### AI audit gì
 
-Mỗi màn hình có đủ trạng thái: mặc định, đang tải, rỗng, lỗi, bị khoá quyền, thành công · mỗi hành động trên màn ánh xạ được tới ít nhất một `BR` · mỗi màn khai rõ **cần dữ liệu gì** · thông báo lỗi khớp với trường hợp lỗi ở dòng soát 13 · hành vi mạng yếu và ngoại tuyến, với mobile.
+Mỗi màn hình có đủ trạng thái: mặc định, đang tải, rỗng, lỗi, bị khoá quyền, thành công · mỗi hành động trên màn ánh xạ được tới ít nhất một `LOGIC` · mỗi màn khai rõ **cần dữ liệu gì** · thông báo lỗi khớp với trường hợp lỗi ở dòng soát 13 · hành vi mạng yếu và ngoại tuyến, với mobile.
 
 Bộ thiết kế **chỉ nói cần dữ liệu gì**, không quyết API. API là việc của trạm kiến trúc.
 
@@ -398,7 +399,7 @@ Khi cả `logical_tests` lẫn mọi `ux_*` áp dụng đều duyệt xong: `mil
 
 | Nhóm | Chốt gì |
 |---|---|
-| Yêu cầu phi chức năng | Lưu lượng, độ trễ mục tiêu, mức sẵn sàng, RPO, RTO, thời gian lưu dữ liệu |
+| Yêu cầu phi chức năng | Lưu lượng, độ trễ mục tiêu, mức sẵn sàng, RPO, RTO, thời gian lưu dữ liệu. **Phải là con số cụ thể** — `check` từ chối duyệt trạm này nếu để trống, vì trạm 7 không có gì để so |
 | Chia cụm và service | Mỗi `ENT` có đúng **một** service làm chủ |
 | Dữ liệu | Ranh giới giao dịch, mô hình nhất quán, khoá chống trùng, thứ tự |
 | Hợp đồng | API, sự kiện, lược đồ, mô hình lỗi, phiên bản |
@@ -440,7 +441,54 @@ Test viết trước code ở những chỗ hợp: tính toán nghiệp vụ, lu
 
 ---
 
-## 7. Trạm RELEASE
+## 7. Trạm NGHIỆM THU HỆ THỐNG
+
+Trạm này trước đó **không có**. Human chỉ ra thiếu, và đúng là thiếu.
+
+### Vì sao phải là một trạm riêng
+
+Bốn thứ dưới đây **không kiểm được ở mức từng tính năng**:
+
+| Kiểm gì | Vì sao phải ở mức hệ thống |
+|---|---|
+| **Hiệu năng** | Thông lượng và độ trễ là tính chất của cả hệ. Đo một tính năng đứng riêng thì không học được gì |
+| **Luồng đầu-cuối** | Đi xuyên nhiều tính năng, nhiều service |
+| **Phục hồi** | Giết một service, mất DB, khôi phục backup thật |
+| **Bảo mật** | Quét phụ thuộc, thử vượt quyền, thử leo thang quyền |
+
+### Hiệu năng — chốt số ở trạm 4, đo ở trạm 7
+
+| Ở đâu | Làm gì |
+|---|---|
+| Trạm 4 — KIẾN TRÚC | **Chốt con số mục tiêu.** Bao nhiêu request/giây, độ trễ p99, bao nhiêu người dùng đồng thời, chịu được mất gì |
+| Trạm 7 | **Chạy thật và so với con số đó** |
+
+Mọi hệ thống đều qua trạm này, chỉ khác con số. Một trang blog khai `100 req/s, p99 < 500ms` rồi đi tiếp trong năm phút. Sàn giao dịch khai khắt khe hơn nhiều và mất vài ngày.
+
+`check` **từ chối duyệt trạm 4 nếu chưa khai con số**. Để trống thì trạm 7 không có gì để so, và cả trạm thành hình thức.
+
+### Bốn loại đo hiệu năng
+
+| Loại | Hỏi gì |
+|---|---|
+| Tải bình thường | Ở mức tải dự kiến, độ trễ có đạt không |
+| Tải đỉnh | Ở mức gấp N lần, hệ có đứng không |
+| Tải kéo dài | Chạy nhiều giờ, có rò rỉ bộ nhớ, có tụt dần không |
+| Tải đột biến | Tăng vọt trong vài giây, hệ phản ứng thế nào |
+
+### Còn một phép đo rẻ ở trạm 6
+
+Ở mức từng tính năng, `slice verify` chạy một phép đo rẻ tiền: *"không được chậm hơn lần đo trước quá X%"*.
+
+Nó không thay được trạm 7, nhưng bắt được lỗi thô — truy vấn lặp, vòng lặp lồng nhau — ngay lúc vừa viết ra, thay vì để tới cuối mới phát hiện.
+
+### Human duyệt gì
+
+Kết quả đo so với chỉ tiêu · chỗ nào không đạt và vì sao · rủi ro chấp nhận được hay không.
+
+---
+
+## 8. Trạm PHÁT HÀNH
 
 Bảng kiểm trước khi lên production. kidea **kiểm**, không **làm** — deploy vẫn do script hoặc CI của bạn chạy.
 
@@ -448,7 +496,7 @@ Mọi tính năng MVP `DEV_VERIFIED` · mọi `LT` mức CRITICAL có test tự 
 
 ---
 
-## 8. Phần tài liệu này cố ý làm mỏng
+## 9. Phần tài liệu này cố ý làm mỏng
 
 Trạm `SCOPE` và `REQUIREMENTS` viết đầy đủ vì đó là hai trạm bạn dùng đầu tiên, dùng lâu nhất, và quyết định chất lượng mọi thứ sau.
 
@@ -458,7 +506,7 @@ Chi tiết hoá dần khi đi tới, theo đúng nguyên tắc *thiết kế v�
 
 ---
 
-## 9. Cần Human quyết
+## 10. Cần Human quyết
 
 **Danh sách 21 dòng soát ở trạm REQUIREMENTS có thiếu gì không?**
 

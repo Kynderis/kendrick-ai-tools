@@ -4,12 +4,12 @@ Cập nhật: 2026-08-29 · Trạng thái: **chờ duyệt**
 
 Đây là tài liệu chính. Đọc hết cái này là đủ để quyết định. Ba tài liệu còn lại chỉ để tra khi cần.
 
-| File | Đọc khi nào | Dài |
-|---|---|---|
-| **`00-BAT-DAU-TU-DAY.md`** ← bạn đang đọc | Luôn. Đọc để duyệt | ~15 phút |
-| `01-BO-MAY.md` | Khi muốn kiểm tra một cơ chế cụ thể | Tra cứu |
-| `02-CONG-VIEC-TUNG-TRAM.md` | Khi muốn kiểm tra AI phải làm gì ở mỗi bước | Tra cứu |
-| `03-vi-sao-thiet-ke-nhu-vay.md` | Khi thắc mắc "sao không làm cách khác" | Lịch sử |
+| File | Đọc khi nào |
+|---|---|
+| **`00-BAT-DAU-TU-DAY.md`** ← bạn đang đọc | Luôn. Đọc để duyệt |
+| `01-BO-MAY.md` | Khi muốn kiểm tra một cơ chế cụ thể |
+| `02-CONG-VIEC-TUNG-TRAM.md` | Khi muốn kiểm tra AI phải làm gì ở mỗi bước |
+| `03-vi-sao-thiet-ke-nhu-vay.md` | Khi thắc mắc "sao không làm cách khác" |
 
 ---
 
@@ -22,7 +22,7 @@ Nó chặn hai thứ:
 | Chặn cái gì | Bằng cách nào |
 |---|---|
 | AI viết code khi nghiệp vụ chưa rõ | Một script chặn thao tác ghi file, chạy trước mỗi lần AI định sửa |
-| AI sửa một chỗ mà bỏ sót các chỗ liên quan | Ba tấm bản đồ ghi cái gì liên quan cái gì |
+| AI sửa một chỗ mà bỏ sót các chỗ liên quan | Ba tấm bản đồ, cộng luật lan truyền đệ quy |
 
 kidea **không** giúp AI viết code giỏi hơn. Nó chỉ đảm bảo AI làm đúng thứ tự và không bỏ sót.
 
@@ -39,7 +39,7 @@ $ /kidea init ../chatgpt-san-crypto
 
 Đã đọc 14 file tài liệu.
 Tìm thấy 12 tính năng:  MVP 8 · Future 3 · Idea 1
-Tìm thấy 5 thực thể nghiệp vụ: Số dư, Lệnh, Sổ lệnh, Giao dịch, Tài khoản
+Đề xuất 5 thực thể nghiệp vụ: Số dư, Lệnh, Sổ lệnh, Giao dịch, Tài khoản
 
 Kiểm tra nghiệp vụ 8 tính năng MVP:
   5 tính năng — tài liệu đủ rõ
@@ -71,7 +71,7 @@ Bạn trả lời trong chat. AI cập nhật tài liệu. Khi bạn thấy ổn
 $ /kidea approve requirements FEAT-MVP-ORDER-MARKET
 ```
 
-Lệnh này **chỉ bạn gõ được**. AI không có cách nào tự duyệt cho mình — lý do ở mục 7.
+Lệnh này **chỉ bạn gõ được**. AI không có cách nào tự duyệt cho mình — lý do ở mục 9.
 
 ### Ngày 5 — bạn sốt ruột, và kidea chặn bạn lại
 
@@ -98,58 +98,50 @@ sequenceDiagram
 
 Kể cả AI *muốn* nghe lời bạn, nó cũng không làm được. Người gác là một script riêng, không phải AI.
 
-Muốn đi tiếp thì bạn phải duyệt chính thức — tức là **nhìn vào cái mình đang bỏ qua** trước khi bỏ qua nó.
-
 ### Ngày 30 — bạn đổi một quy tắc nghiệp vụ
 
-Đây là ví dụ bạn đưa ra: trước sàn chỉ có lệnh Market nên số dư chỉ cần một con số tổng. Giờ thêm lệnh Limit thì phải tách thành số dư khả dụng và số dư bị giữ.
-
 ```text
-$ /kidea impact BR-BAL-001
+$ /kidea impact LOGIC-BAL-001
 
-Sửa BR-BAL-001 sẽ ảnh hưởng:
+Sửa LOGIC-BAL-001 sẽ ảnh hưởng:
 
-  QUY TẮC KHÁC     BR-BAL-002 — cùng ghi vào "Số dư"
-                   BR-ORDER-007 — phụ thuộc BR-BAL-001
+  LOGIC KHÁC       LOGIC-BAL-002 — cùng ghi vào "Số dư"
+                   LOGIC-ORDER-007 — dùng LOGIC-BAL-001
+
+  TÍNH NĂNG        FEAT-MVP-ORDER-LIMIT, FEAT-MVP-ORDER-MARKET
+                   FEAT-MVP-WITHDRAW  ← lan gián tiếp qua LOGIC-ORDER-007
 
   TEST CASE        5 case: LT-ORDER-0042, 0043, 0051, 0052, 0067
 
-  CODE             3 file
-                     src/balance/reserve.cpp
-                     src/order/place_order.cpp
-                     src/risk/precheck.cpp
+  CODE             src/balance/reserve.cpp
+                   src/order/place_order.cpp
+                   src/risk/precheck.cpp
 
   HÀM GỌI TỚI      order::submit, risk::validate, admin::adjust_balance
-
-  MÀN HÌNH         2: Web đặt lệnh, Admin xem số dư
 
   Approval sẽ bị thu hồi: nghiệp vụ, test, kiến trúc
 ```
 
 Đây là câu trả lời của một cái máy đọc từ ba tấm bản đồ, **không phải trí nhớ của AI**. Nên nó không bịa.
 
-Sau khi bạn sửa, kidea đánh dấu 16 thứ trên là "chưa đồng bộ", và **không cho đóng việc** chừng nào còn sót.
-
 ---
 
 ## 3. Skill kidea gồm những gì
-
-Bạn hỏi "Kidea skill thiết kế như nào". Đây là câu trả lời.
 
 ### Ba nhóm file
 
 ```mermaid
 flowchart TD
     subgraph A["1. SKILL — dạy AI cách suy nghĩ"]
-    A1["SKILL.md<br/>Hướng dẫn AI: ở trạm này<br/>phải soạn gì, kiểm gì"]
-    A2["templates/<br/>Mẫu tài liệu nghiệp vụ,<br/>mẫu test case..."]
+    A1["SKILL.md<br/>Ở trạm này phải soạn gì, kiểm gì"]
+    A2["templates/<br/>Mẫu tài liệu nghiệp vụ, mẫu test case"]
     end
 
     subgraph B["2. SCRIPTS — làm việc chính xác"]
-    B1["kidea.py — điểm vào 9 lệnh"]
+    B1["kidea.py — điểm vào các lệnh"]
     B2["state.py — đọc/ghi cuốn sổ"]
     B3["map_*.py — dựng ba bản đồ"]
-    B4["impact.py — truy vết ảnh hưởng"]
+    B4["impact.py — lan truyền đệ quy"]
     end
 
     subgraph C["3. HOOK — chặn AI"]
@@ -157,162 +149,275 @@ flowchart TD
     end
 ```
 
-**Vì sao chia ba?** Vì ba loại việc khác nhau:
-
 | Nhóm | Làm việc gì | Sai thì sao |
 |---|---|---|
-| SKILL | Việc cần hiểu ý nghĩa: soạn nghiệp vụ, tìm lỗ hổng | Sai thì tài liệu kém, Human phát hiện được khi review |
-| SCRIPTS | Việc cần chính xác tuyệt đối: đếm, so sánh, băm | **Không được sai.** Nên viết thành code, không giao cho AI |
-| HOOK | Chặn hoặc cho | **Không được sai.** Và phải chạy ngoài tầm với của AI |
-
-Đây là nguyên tắc gốc:
+| SKILL | Việc cần hiểu ý nghĩa: soạn nghiệp vụ, tìm lỗ hổng | Tài liệu kém, Human review thấy được |
+| SCRIPTS | Việc cần chính xác tuyệt đối: đếm, so sánh, băm | **Không được sai.** Nên viết thành code |
+| HOOK | Chặn hoặc cho | **Không được sai**, và phải chạy ngoài tầm với của AI |
 
 > **Luật nào quan trọng thì viết thành script, không viết thành lời dặn trong prompt.**
-
-### Chạy lúc nào
-
-```mermaid
-sequenceDiagram
-    participant H as Human
-    participant CC as Claude Code
-    participant S as Skill
-    participant G as Hook
-    participant K as Scripts
-
-    H->>CC: /kidea status
-    CC->>S: nạp SKILL.md
-    S->>K: gọi kidea.py status
-    K-->>H: in bảng trạng thái
-
-    H->>CC: "soạn nghiệp vụ cho tính năng X"
-    CC->>S: SKILL.md hướng dẫn cách soạn
-    CC->>G: (tự động) tôi muốn ghi file
-    G->>K: đọc cuốn sổ, tra bậc
-    G-->>CC: CHO hoặc CHẶN
-```
-
-Hook chạy **tự động, không ai gọi nó**. Claude Code gọi nó trước mỗi thao tác ghi file. Đó là lý do AI không lách được.
 
 ### Cài ở đâu
 
 | Cái gì | Ở đâu | Vì sao |
 |---|---|---|
 | Skill + scripts | `~/.claude/skills/kidea/` | Dùng chung cho mọi project |
-| Hook | Trong từng project: `.claude/hooks/` | Commit cùng project, ai clone về cũng bị gác |
-| Cuốn sổ, ba bản đồ | Trong từng project: `.kidea/` | Trạng thái thuộc về project, không thuộc về máy bạn |
+| Hook | Trong project: `.claude/hooks/` | Commit cùng project, ai clone về cũng bị gác |
+| Cuốn sổ, ba bản đồ | Trong project: `.kidea/` | Trạng thái thuộc về project |
 
 ---
 
-## 4. Ba tấm bản đồ
+## 4. Ba cấp nghiệp vụ
 
-Bạn yêu cầu ba tấm. Đây là ba tấm đó.
+Đây là mô hình bạn đề xuất. Tôi nêu lại để bạn kiểm, kèm một chỗ tôi chỉnh.
+
+| Cấp | Mã | Là gì | Ví dụ |
+|---|---|---|---|
+| **Tính năng** | `FEAT-*` | Thứ người dùng thấy và dùng | Đặt lệnh Limit |
+| **Logic** | `LOGIC-*` | Một phát biểu nghiệp vụ, đúng hoặc sai, kiểm được | "Số dư bị giữ ngay khi lệnh được nhận" |
+| **Thực thể** | `ENT-*` | Danh từ nghiệp vụ mà nhiều logic cùng động vào | Số dư, Lệnh, Sổ lệnh |
+
+### Ghép và tách
+
+```mermaid
+flowchart TD
+    F1["FEAT Đặt lệnh Limit"] -->|"gồm"| F2["FEAT Xác thực người dùng"]
+    F1 -->|"dùng"| L1["LOGIC Giữ số dư"]
+    F1 -->|"dùng"| L2["LOGIC Đẩy lệnh vào sổ"]
+    L1 -->|"gồm"| L3["LOGIC Tính số dư khả dụng"]
+    L1 -->|"ghi"| E1["ENT Số dư"]
+    L3 -->|"đọc"| E1
+    L2 -->|"ghi"| E2["ENT Sổ lệnh"]
+```
+
+Một tính năng ghép từ tính năng khác cộng logic. Một logic ghép từ logic khác cộng thực thể. Thực thể là đáy.
+
+### Chỗ tôi chỉnh so với đề xuất của bạn
+
+Bạn nói TTNV là *"đơn vị nhỏ nhất trong nghiệp vụ, kiểu như **quản lý số dư của 1 user**"*.
+
+Tôi đề nghị đổi một chút: **thực thể là cái danh từ "Số dư", không phải cái việc "quản lý số dư"**.
+
+Vì sao:
+
+| | "Số dư" (danh từ) | "Quản lý số dư" (việc) |
+|---|---|---|
+| Có bao nhiêu cách gọi | Một | Nhiều: quản lý số dư, xử lý số dư, kiểm số dư… |
+| Máy so tên có khớp không | **Khớp** | Dễ lệch, lưới an toàn thủng |
+| Nó là gì | Thứ có trạng thái, có chủ sở hữu | Tập hợp các logic động vào thứ đó |
+
+**Cái bạn gọi là "quản lý số dư" vẫn còn nguyên** — nó chính là `ENT Số dư` cộng với **tất cả logic ghi vào nó**. Máy tính ra được, không cần thành một cấp riêng.
+
+Nói cách khác: bạn có ba cấp, tôi cũng ba cấp, chỉ khác cách đặt tên cấp dưới cùng. Danh từ làm mỏ neo tốt hơn động từ.
+
+### Ai định nghĩa và chốt thực thể
+
+Bạn hỏi câu này. Trả lời:
+
+```mermaid
+flowchart TD
+    A["Trạm 1 — PHẠM VI<br/>AI đọc tài liệu ChatGPT<br/>rút ra các danh từ nghiệp vụ"] --> B["AI ĐỀ XUẤT danh sách<br/>kèm lý do từng cái"]
+    B --> C["Human sửa: thêm, bớt, đổi tên, gộp"]
+    C --> D["Human gõ /kidea approve scope"]
+    D --> E["DANH SÁCH KHOÁ LẠI"]
+    E --> F["Từ đây check TỪ CHỐI<br/>mọi thực thể lạ"]
+    F --> G["Muốn thêm thực thể mới?<br/>Phải mở /kidea change<br/>và Human duyệt lại"]
+```
+
+**AI đề xuất, Human chốt, sau đó khoá.** AI không bao giờ tự thêm thực thể.
+
+Tiêu chí để một thứ được làm thực thể — AI dùng để lọc, Human dùng để kiểm:
+
+| Câu hỏi | Phải trả lời |
+|---|---|
+| Nó có trạng thái sống qua nhiều request không? | Có. "Số dư" có; "giá hiển thị trên màn" không |
+| Có từ hai logic trở lên động vào nó không? | Có. Một logic động vào thì chưa cần tách ra |
+| Có ai đó phải làm chủ nó không? | Có. Sang trạm kiến trúc, mỗi thực thể được gán đúng một service làm chủ |
+
+---
+
+## 5. Ba tấm bản đồ
 
 | Tên | Trả lời câu hỏi | Ai tạo ra |
 |---|---|---|
-| **NGHIỆP VỤ** | *Đổi luật này thì luật nào lung lay?* | AI viết khi soạn tài liệu, Human duyệt |
+| **NGHIỆP VỤ** | *Đổi logic này thì logic nào lung lay?* | AI viết khi soạn tài liệu, Human duyệt |
 | **CODE** | *Sửa hàm này thì ai gọi nó?* | Máy tự đọc source, không ai can thiệp |
-| **CẦU NỐI** | *Luật này nằm ở đoạn code nào?* | AI viết chú thích khi nó code |
+| **CẦU NỐI** | *Logic này nằm ở đoạn code nào?* | AI viết chú thích khi nó code |
 
-### Bản đồ NGHIỆP VỤ — chỗ khó nhất
+Bản đồ NGHIỆP VỤ chứa đúng ba cấp ở mục 4, cùng các cạnh `gồm` / `dùng` / `đọc` / `ghi` / `thay-thế`.
 
-Vấn đề nó giải chính là ví dụ của bạn: **thêm lệnh Limit làm hỏng quy tắc số dư đã có**. Làm sao máy phát hiện?
-
-Chìa khoá là một khái niệm gọi là **thực thể nghiệp vụ**. Đó là *danh từ* mà nhiều quy tắc cùng động vào: Số dư, Lệnh, Sổ lệnh, Tài khoản.
-
-> Hai quy tắc **không biết gì về nhau**. Nhưng nếu chúng **cùng ghi vào một thực thể** thì chúng liên quan tới nhau.
-
-Cụ thể:
+### Vì sao thực thể là lưới an toàn
 
 ```mermaid
 flowchart TD
-    A["BR-BAL-001<br/>Số dư là một con số tổng<br/>ghi vào: SỐ DƯ"] --> C{"Máy thấy hai quy tắc<br/>cùng ghi vào SỐ DƯ"}
-    B["BR-BAL-002<br/>Số dư tách khả dụng và bị giữ<br/>ghi vào: SỐ DƯ"] --> C
+    A["LOGIC-BAL-001<br/>Số dư là một con số tổng<br/>ghi vào: SỐ DƯ"] --> C{"Máy thấy hai logic<br/>cùng ghi vào SỐ DƯ"}
+    B["LOGIC-BAL-002<br/>Số dư tách khả dụng và bị giữ<br/>ghi vào: SỐ DƯ"] --> C
     C --> D["CẢNH BÁO xung đột"]
-    D --> E["BR-BAL-001 chuyển 'hết hiệu lực'"]
-    E --> F["Mọi test case của nó → chưa đồng bộ"]
-    F --> G["Mọi code thực hiện nó → cần xem lại"]
-    G --> H["Không cho đóng việc<br/>chừng nào còn sót"]
 ```
 
-**Điểm hay nhất:** kể cả khi AI quên khai *"quy tắc mới thay thế quy tắc cũ"*, luật *"hai quy tắc cùng ghi một thực thể"* vẫn bắt được. Đó là **lưới an toàn khi AI khai thiếu**.
-
-Danh sách thực thể được chốt sớm, ngay ở trạm đầu tiên, và **bạn duyệt**. Sau đó máy từ chối mọi thực thể lạ. Muốn thêm thì phải quay lại trạm đầu, và bạn nhìn thấy.
-
-### Ba tấm nối lại
-
-```mermaid
-flowchart LR
-    A["Đổi<br/>BR-BAL-001"] -->|"NGHIỆP VỤ"| B["BR-BAL-002<br/>LT-ORDER-0042"]
-    A -->|"CẦU NỐI"| C["hàm reserve_balance"]
-    C -->|"CODE"| D["hàm place_order<br/>hàm risk_precheck"]
-```
-
-Một lệnh `/kidea impact` đi hết cả ba.
+Kể cả khi AI **quên khai** "logic mới thay logic cũ", luật *"hai logic cùng ghi một thực thể"* vẫn bắt được.
 
 ---
 
-## 5. Bảy trạm
+## 6. Khi có thay đổi thì làm gì
+
+Đây là phần bạn mô tả kỹ nhất. Tôi nêu lại thành quy trình.
+
+### Bước 1 — cái mới có thực sự mới không
+
+Trước khi thêm bất cứ tính năng hay logic nào:
+
+```text
+$ /kidea change feature "Đặt lệnh Stop Limit"
+
+So với 12 tính năng đang có:
+
+  GẦN NHẤT   FEAT-MVP-ORDER-LIMIT — Đặt lệnh Limit
+             Giống : cùng actor, cùng ghi ENT Lệnh và ENT Số dư,
+                     cùng dùng LOGIC-BAL-002
+             Khác  : thêm điều kiện kích hoạt theo giá
+
+  Tôi nghiêng về: KHÔNG phải tính năng mới.
+                  Nên tách FEAT-MVP-ORDER-LIMIT thành:
+                    - LOGIC chung: đặt lệnh có giá
+                    - LOGIC riêng: điều kiện kích hoạt
+
+  BẠN CHỐT: mới hoàn toàn / biến thể của cái cũ / thay thế cái cũ
+```
+
+**AI phân tích, Human chốt.** Không cho AI tự quyết, vì quyết sai thì catalog phình ra toàn thứ trùng nhau.
+
+### Bước 2 — khoanh vùng, và lan truyền đệ quy
+
+Đây là phần bạn nhấn mạnh nhất: *"phải đệ quy nhé… chỉ dừng lại khi không còn ai gọi tới nữa"*.
+
+Luật có **hai mức**, và chỉ mức thứ hai mới lan tiếp:
+
+| Mức | Nghĩa | Có lan tiếp không |
+|---|---|---|
+| **CẦN XEM LẠI** | Thứ này dùng cái vừa đổi. Phải đọc lại và test lại | Chưa |
+| **THỰC SỰ BỊ SỬA** | Đọc lại rồi, và nó phải sửa thật | **Có.** Lan tiếp từ nó |
 
 ```mermaid
 flowchart TD
-    T1["1. PHẠM VI<br/>Tính năng nào MVP, nào để sau<br/>Danh sách thực thể nghiệp vụ"] --> T2
-    T2["2. NGHIỆP VỤ<br/>Từng tính năng làm gì, quy tắc gì"] --> T3A & T3B
+    C["LOGIC C thay đổi"] --> B1["B dùng C<br/>→ CẦN XEM LẠI"]
+    B1 --> Q{"Đọc lại B:<br/>B có phải sửa không?"}
+    Q -- "Không, B vẫn đúng" --> S1["Dừng nhánh này.<br/>Nhưng vẫn phải TEST LẠI B"]
+    Q -- "Có, B phải sửa" --> B2["B THỰC SỰ BỊ SỬA"]
+    B2 --> A1["A dùng B<br/>→ CẦN XEM LẠI"]
+    A1 --> Q2{"Đọc lại A:<br/>A có phải sửa không?"}
+    Q2 -- "Không" --> S2["Dừng. Vẫn test lại A"]
+    Q2 -- "Có" --> A2["Lan tiếp lên trên..."]
+    A2 --> S3["Dừng khi không còn ai dùng nữa"]
+```
+
+Điểm quan trọng: **nhánh dừng lan truyền vẫn phải test lại.** Không sửa không có nghĩa là không cần kiểm.
+
+Máy làm việc khoanh vùng và không cho quên. Việc *"B có phải sửa không"* thì AI đánh giá và Human chốt.
+
+Luật này áp cho cả ba cấp, và cho cả trường hợp sửa bug — bug cũng chỉ là "một logic đang sai".
+
+### Bước 3 — sau khi sửa xong, có nên gộp hay tách
+
+Bạn nêu ý này và tôi thấy nó giữ cho mô hình không phình:
+
+```text
+$ /kidea check
+
+ĐỀ XUẤT DỌN DẸP
+
+  LOGIC-BAL-002 giờ ghi vào 4 thực thể và có 7 nhánh điều kiện.
+  → Đề nghị TÁCH thành 2 logic.
+
+  LOGIC-ORDER-011 và LOGIC-ORDER-014 giờ phát biểu gần trùng nhau.
+  → Đề nghị GỘP.
+
+  Đây là ĐỀ XUẤT. Bạn chốt. Bỏ qua cũng được.
+```
+
+Đây là cảnh báo, **không phải cổng chặn**. Bắt buộc dọn dẹp thì thành phiền nhiễu.
+
+---
+
+## 7. Tám trạm
+
+```mermaid
+flowchart TD
+    T1["1. PHẠM VI<br/>Tính năng nào MVP<br/>Danh sách thực thể"] --> T2
+    T2["2. NGHIỆP VỤ<br/>Từng tính năng làm gì, logic gì"] --> T3A & T3B
     T3A["3a. TEST LOGIC<br/>Test case dạng chữ"] --> T4
     T3B["3b. GIAO DIỆN<br/>Màn hình web, mobile, admin"] --> T4
-    T4["4. KIẾN TRÚC<br/>Chia service, dữ liệu, API"] --> T5
+    T4["4. KIẾN TRÚC<br/>Chia service, dữ liệu, API<br/>+ CHỈ TIÊU HIỆU NĂNG"] --> T5
     T5["5. CODE<br/>Làm từng tính năng trọn vẹn"] --> T6
-    T6["6. NGHIỆM THU<br/>Test pass, Human xác nhận"] --> T7
-    T7["7. PHÁT HÀNH<br/>Kiểm đủ điều kiện lên production"]
+    T6["6. NGHIỆM THU TÍNH NĂNG<br/>Test pass, Human xác nhận"] --> T7
+    T7["7. NGHIỆM THU HỆ THỐNG<br/>Hiệu năng, luồng đầu-cuối,<br/>phục hồi, bảo mật"] --> T8
+    T8["8. PHÁT HÀNH<br/>Kiểm đủ điều kiện lên production"]
 ```
 
-Mỗi trạm, Human phải gõ `/kidea approve` mới đi tiếp. **AI không tự chuyển trạm.**
+Mỗi trạm, Human phải gõ `/kidea approve` mới đi tiếp.
 
-Trạm 3a và 3b chạy song song, cả hai xong mới sang trạm 4.
+Từ trạm 1 đến 4 là **cả project cùng đi** — kiến trúc cắt ngang mọi tính năng, thiết kế khi còn nửa nghiệp vụ chưa rõ là thiết kế sai. Từ trạm 5 là **từng tính năng đi riêng**.
 
-### Một điểm quan trọng về trạm 5
+### Trạm 7 — bạn hỏi stress test nằm ở đâu
 
-Từ trạm 1 đến 4 là **cả project cùng đi**. Phải xong nghiệp vụ của mọi tính năng MVP mới được thiết kế kiến trúc — vì kiến trúc cắt ngang mọi tính năng, thiết kế khi còn nửa nghiệp vụ chưa rõ là thiết kế sai.
+Trước đó **chưa có**. Bạn đúng, thiếu thật. Giờ nó là trạm 7, và tách làm hai chỗ:
 
-Từ trạm 5 trở đi là **từng tính năng đi riêng**. Xong kiến trúc rồi thì tính năng A code được ngay, không phải chờ tính năng B.
+| Ở đâu | Làm gì |
+|---|---|
+| **Trạm 4 — KIẾN TRÚC** | **Chốt con số mục tiêu.** Bao nhiêu request/giây, độ trễ p99 bao nhiêu, bao nhiêu user đồng thời, chịu được mất gì |
+| **Trạm 7 — NGHIỆM THU HỆ THỐNG** | **Chạy thật và so với con số đó** |
+
+Đúng ý bạn: mọi hệ thống đều qua trạm này, chỉ khác con số. Blog cá nhân khai "100 req/s, p99 dưới 500ms" rồi đi tiếp trong năm phút. Sàn crypto khai khắt khe hơn nhiều và mất vài ngày.
+
+**Nhưng `check` từ chối duyệt trạm 4 nếu chưa khai con số.** Không được để trống, vì để trống thì trạm 7 không có gì để so.
+
+Trạm 7 kiểm bốn thứ, đều là thứ **không kiểm được ở mức từng tính năng**:
+
+| Kiểm gì | Vì sao phải ở mức hệ thống |
+|---|---|
+| Hiệu năng | Thông lượng là tính chất của cả hệ, không phải của một tính năng |
+| Luồng đầu-cuối | Đi xuyên nhiều tính năng, nhiều service |
+| Phục hồi | Giết một service, mất DB, thử khôi phục backup thật |
+| Bảo mật | Quét phụ thuộc, thử vượt quyền |
+
+Ngoài ra ở trạm 6, mỗi tính năng có một phép đo rẻ tiền: *"không được chậm hơn lần trước quá X%"*. Nó bắt được lỗi thô như truy vấn lặp, ngay lúc vừa viết ra.
 
 ---
 
-## 6. Chín lệnh
+## 8. Chín lệnh
 
 | Lệnh | Làm gì |
 |---|---|
 | `/kidea init <đường-dẫn>` | Tạo project mới từ bộ tài liệu ChatGPT |
 | `/kidea init` | Mở lại project cũ, khôi phục toàn bộ ngữ cảnh |
 | `/kidea status` | Đang ở trạm nào, kẹt cái gì, làm gì tiếp |
-| `/kidea check` | Soát toàn bộ: ID có thật không, tài liệu có lệch không |
+| `/kidea check` | Soát toàn bộ, kèm đề xuất gộp/tách |
 | `/kidea index` | Vẽ lại ba tấm bản đồ |
 | `/kidea approve <trạm>` | **Chỉ Human gõ.** Duyệt một trạm |
-| `/kidea impact <mã>` | Sửa cái này thì ảnh hưởng đâu |
-| `/kidea change <loại>` | Mở một việc: sửa bug, thêm tính năng, refactor... |
+| `/kidea impact <mã>` | Sửa cái này thì ảnh hưởng đâu, đệ quy |
+| `/kidea change <loại>` | Mở một việc: thêm tính năng, sửa bug, refactor… |
 | `/kidea slice <tính-năng>` | Làm trọn một tính năng từ thiết kế tới code |
 | `/kidea adopt` | Kéo một project cũ vào kidea |
 
 ---
 
-## 7. Ai được làm gì
-
-Bảng này là xương sống của cả thiết kế.
+## 9. Ai được làm gì
 
 | Việc | Human | AI | Máy |
 |---|:---:|:---:|:---:|
 | Quyết định nghiệp vụ | **Quyết** | Đề xuất | — |
 | Duyệt một trạm | **Chỉ Human** | Không được | Kiểm điều kiện |
+| Chốt danh sách thực thể | **Chốt** | Đề xuất | Khoá lại, từ chối cái lạ |
+| Quyết "cái này mới hay là biến thể" | **Chốt** | Phân tích, so sánh | Tìm ứng viên giống |
+| Quyết "logic này có phải sửa không" | **Chốt** | Đánh giá | Khoanh vùng, không cho quên |
+| Quyết "nên gộp hay tách" | **Chốt** | Đề xuất | Phát hiện dấu hiệu |
 | Soạn tài liệu nghiệp vụ | Đọc, sửa | **Viết** | — |
-| Viết code | Đọc nếu muốn | **Viết** | — |
-| Viết test | Đọc nếu muốn | **Viết** | — |
+| Viết code, viết test | Đọc nếu muốn | **Viết** | — |
 | Vẽ bản đồ CODE | — | — | **Máy đọc source** |
-| Vẽ bản đồ NGHIỆP VỤ | Duyệt | **Khai** | Kiểm chéo |
+| Lan truyền đệ quy | — | — | **Máy** |
 | Chặn thao tác sai | — | Không được lách | **Hook** |
-| Đối chiếu, đếm, băm | — | — | **Script** |
 
 ### "Chỉ Human mới duyệt" — ép bằng cách nào
-
-AI chạy được lệnh shell, nên về lý thuyết nó có thể tự gõ lệnh duyệt cho mình. Đây là cơ chế chặn:
 
 ```mermaid
 flowchart TD
@@ -321,83 +426,88 @@ flowchart TD
     B -- "Không — AI gọi qua shell" --> D["AI không trả lời được<br/>vì nó không có bàn phím<br/>→ TỪ CHỐI"]
 ```
 
-Công cụ shell mà AI dùng chạy **không có terminal thật**. Lệnh `approve` hỏi một câu xác nhận và đòi đọc từ terminal — AI không có cách nào trả lời.
+Công cụ shell mà AI dùng chạy **không có terminal thật**. Cơ chế này không dựa vào việc AI có chịu nghe lời hay không.
 
-Cơ chế này không dựa vào việc AI có chịu nghe lời hay không.
+---
 
-### Chống AI tự chấm điểm cho mình
+## 10. Làm sao script biết còn thiếu cái gì
 
-AI có động cơ tự nhiên là muốn qua trạm. Để nó vừa viết vừa tự chấm thì nó sẽ tick hết ô cho xong. Bốn lớp chống:
+Bạn tò mò chỗ này. Đây là câu trả lời, và nó đơn giản hơn bạn tưởng.
+
+> **Script không phán đoán ngữ nghĩa. Script chỉ đếm.**
+
+Việc phán đoán "chỗ này thiếu" là của AI. Nhưng AI phải ghi phán đoán đó ra một **file có cấu trúc cố định**. Script đọc file đó và áp luật máy móc.
+
+```mermaid
+flowchart LR
+    A["AI đọc tài liệu<br/>phán đoán chỗ nào thiếu"] --> B["AI ghi ra file<br/>có cấu trúc cố định"]
+    B --> C["Script ĐẾM và ĐỐI CHIẾU<br/>không đọc hiểu nội dung"]
+    C --> D["Cho qua / Chặn"]
+```
+
+File AI phải ghi trông như thế này:
+
+```yaml
+- muc: 14
+  ten: "Đồng thời"
+  trang_thai: DA_DIEN
+  trich_dan: "FEAT-MVP-ORDER-LIMIT.md § Đồng thời — 'Hai lệnh cùng lúc
+              trên một tài khoản: số dư được giữ trong một giao dịch
+              nguyên tử, lệnh thứ hai thấy số dư đã trừ.'"
+  logic: [LOGIC-BAL-002, INV-BALANCE-001]
+
+- muc: 15
+  ten: "Trùng lặp, gửi lại, timeout"
+  trang_thai: THIEU
+  blocker:
+    thieu: "Chưa nói client_order_id trùng thì xử lý ra sao"
+    ai_de_xuat: "Trả về lệnh đã tạo trước đó, không tạo lệnh mới"
+    human_quyet: null
+```
+
+Script áp bốn luật, **không luật nào cần hiểu tiếng Việt**:
+
+| Luật | Cách kiểm |
+|---|---|
+| Mọi mục bắt buộc phải `DA_DIEN` | Đếm. Còn mục nào `THIEU` thì chặn |
+| Mọi `blocker` phải có `human_quyet` khác `null` | Đếm. Còn `null` thì chặn |
+| Mọi trích dẫn phải trỏ tới mục có thật trong file có thật | Mở file, tìm tiêu đề, so chuỗi |
+| Mọi mã được nhắc phải tồn tại trong bản đồ | Tra bảng |
+
+### Nói thẳng giới hạn
+
+Script phân biệt được **"đã điền đủ hình dạng"** và **"còn trống"**. Nó **không** phân biệt được **"điền hay"** và **"điền dở"**.
+
+AI hoàn toàn có thể viết một mục § Đồng thời chứa một câu vô nghĩa, và script vẫn cho qua vì trích dẫn trỏ đúng chỗ.
+
+Nên phải có ba lớp, script chỉ là lớp đầu:
 
 ```mermaid
 flowchart TD
-    A["AI soạn tài liệu"] --> B["AI điền bảng kiểm<br/>MỖI DÒNG PHẢI TRÍCH<br/>câu cụ thể trong tài liệu"]
-    B --> C["Một AI KHÁC soát lại<br/>không thấy cuộc trò chuyện<br/>lúc soạn tài liệu"]
-    C --> D["Script kiểm máy móc:<br/>câu trích có thật không<br/>mã có tồn tại không"]
-    D --> E["Human đọc bảng kiểm<br/>kèm trích dẫn, rồi quyết"]
+    A["Lớp 1 — SCRIPT<br/>Đủ hình dạng chưa?<br/>Máy móc, không lừa được"] --> B["Lớp 2 — AI KHÁC SOÁT LẠI<br/>Nội dung có thật sự trả lời câu hỏi không?<br/>Chạy trong phiên riêng, không thấy<br/>cuộc trò chuyện lúc soạn"]
+    B --> C["Lớp 3 — HUMAN<br/>Đọc bảng kèm trích dẫn, quyết"]
 ```
 
-Lớp 2 quan trọng: **người soát không phải người soạn**. Nó chạy trong một phiên riêng, không thấy lịch sử, nhiệm vụ là tìm lỗ hổng chứ không phải bảo vệ bài của mình.
+Lớp 2 quan trọng: **người soát không phải người soạn**. Nó không có động cơ bảo vệ bài viết của mình, vì nó không viết ra bài đó.
 
 ---
 
-## 8. Bạn cần duyệt gì
+## 11. Bạn cần duyệt gì
 
-Năm điểm. Bốn điểm đầu chỉ cần gật hoặc lắc. Điểm 5 cần bạn nghĩ.
+| # | Duyệt gì | Ở mục |
+|:--:|---|---|
+| 1 | **Ba cấp nghiệp vụ**, và chỗ tôi chỉnh: thực thể là danh từ, không phải việc | 4 |
+| 2 | **Luồng chốt thực thể**: AI đề xuất → Human chốt → khoá lại | 4 |
+| 3 | **Luật lan truyền đệ quy** hai mức, và nhánh dừng vẫn phải test lại | 6 |
+| 4 | **Tám trạm**, đặc biệt trạm 7 vừa thêm | 7 |
+| 5 | **Bảng phân quyền** | 9 |
+| 6 | **Bảng kiểm 21 dòng** ở trạm nghiệp vụ | `02-CONG-VIEC-TUNG-TRAM.md` mục 2 |
 
-### Điểm 1 — Ba tấm bản đồ, và khái niệm "thực thể nghiệp vụ"
-
-Ba tấm là ý bạn. Nhưng **"thực thể nghiệp vụ" là thứ tôi thêm vào** — nó không có trong yêu cầu gốc của bạn.
-
-Tôi thêm vì không có nó thì bản đồ NGHIỆP VỤ chỉ biết những gì AI khai trực tiếp. Có nó thì máy bắt được cả trường hợp AI khai thiếu.
-
-**Duyệt:** đồng ý thêm khái niệm này không?
-
-### Điểm 2 — Bảy trạm ở mục 5
-
-Đúng thứ tự chưa? Có trạm nào thừa? Có bước nào trong quy trình làm phần mềm mà tôi bỏ sót?
-
-**Duyệt:** bảy trạm này đủ và đúng thứ tự chưa?
-
-### Điểm 3 — Chín lệnh ở mục 6
-
-**Duyệt:** thừa lệnh nào, thiếu lệnh nào?
-
-### Điểm 4 — Bảng phân quyền ở mục 7
-
-Đây là chỗ định nghĩa "Human làm gì, AI làm gì".
-
-**Duyệt:** có ô nào bạn muốn đổi không? Ví dụ có việc nào bạn muốn tự làm mà tôi đang giao cho AI, hoặc ngược lại?
-
-### Điểm 5 — Bảng kiểm 21 dòng ở trạm NGHIỆP VỤ
-
-Đây là điểm cần bạn nghĩ, và là điểm quan trọng nhất.
-
-**Bảng kiểm này định nghĩa "thế nào là nghiệp vụ đủ rõ".** Mỗi dòng là một câu hỏi mà tài liệu nghiệp vụ phải trả lời được. Thiếu một dòng nào là AI được phép đi tiếp trong khi thực ra chưa đủ.
-
-| # | Mục | | # | Mục |
-|:--:|---|---|:--:|---|
-| 1 | Mục tiêu — tính năng này giải quyết vấn đề gì | | 12 | Quyền hạn — ai được làm gì |
-| 2 | Actor — ai dùng | | 13 | Trường hợp lỗi và cách xử lý |
-| 3 | Điều kiện trước khi thực hiện | | 14 | Đồng thời — hai request cùng lúc |
-| 4 | Đầu vào, đầu ra | | 15 | Trùng lặp, gửi lại, timeout |
-| 5 | Luồng chính | | 16 | Giới hạn min/max, độ chính xác số |
-| 6 | Luồng thay thế | | 17 | Trường hợp biên |
-| 7 | Kiểm tra dữ liệu vào | | 18 | Phụ thuộc tính năng khác, hệ thống ngoài |
-| 8 | Quy tắc nghiệp vụ | | 19 | Ghi vết — cần lưu lại gì |
-| 9 | Máy trạng thái | | 20 | Tiêu chí nghiệm thu |
-| 10 | Bất biến — điều luôn phải đúng | | 21 | Câu hỏi còn mở |
-| 11 | Thực thể nào bị đọc, bị ghi | | | |
-
-Ví dụ nó chặn được gì: tài liệu chỉ viết *"Người dùng nhập giá và số lượng rồi gửi lệnh"* thì bảng kiểm bật ra hàng loạt câu chưa trả lời — số dư kiểm lúc nào (dòng 3), có bị giữ không (dòng 8), hai request trùng mã thì sao (dòng 15), timeout nhưng lệnh đã tạo thật thì retry thế nào (dòng 15).
-
-Với tính năng dính tiền, bốn dòng là **bắt buộc, không được bỏ qua**: dòng 14, 15, 16, 19.
-
-**Duyệt:** bảng này thiếu gì không? Bạn làm sàn giao dịch, bạn biết chỗ nào hay sập.
+Điểm 6 là điểm duy nhất cần bạn nghĩ lâu. Nó định nghĩa "thế nào là nghiệp vụ đủ rõ" — thiếu một dòng là AI được đi tiếp trong khi thực ra chưa đủ.
 
 ---
 
-## 9. Duyệt xong thì tôi làm gì
+## 12. Duyệt xong thì tôi làm gì
 
 | # | Tôi viết gì | Xong thì bạn **tự tay thử** được |
 |:---:|---|---|
@@ -405,12 +515,10 @@ Với tính năng dính tiền, bốn dòng là **bắt buộc, không được 
 | 2 | **Người gác + hook** | **Bảo AI "code đi" khi trạm chưa qua, xem nó bị chặn** |
 | 3 | `init` + `status` | Đưa tài liệu ChatGPT thật vào, xem báo cáo thiếu gì |
 | 4 | `check` + `approve` | Duyệt một trạm, sửa tài liệu, xem approval bị thu hồi |
-| 5 | **Bản đồ NGHIỆP VỤ + `impact`** | **Hỏi "đổi quy tắc số dư thì quy tắc nào liên quan"** |
-| 6 | Bản đồ CODE + CẦU NỐI | Hỏi "đổi quy tắc này thì code nào phải sửa" |
-| 7 | `change` | Mở việc sửa, xem không cho đóng khi còn sót |
+| 5 | **Bản đồ NGHIỆP VỤ + `impact` đệ quy** | **Đổi một logic, xem máy khoanh vùng tới đâu** |
+| 6 | Bản đồ CODE + CẦU NỐI | Hỏi "đổi logic này thì code nào phải sửa" |
+| 7 | `change` + kiểm tra trùng lặp | Thêm một tính năng, xem AI tìm ra cái cũ giống nó |
 | 8 | `slice` | Làm trọn một tính năng |
 | 9 | `adopt` | Kéo project cũ vào |
 
-Sau **bước 2** bạn đã thử được thứ quan trọng nhất. Sau **bước 5** bạn thử được đúng cái bạn yêu cầu ở ba tấm bản đồ.
-
-Nếu thiết kế của tôi sai, hai mốc đó là lúc phát hiện — khi mới mất vài ngày, không phải vài tuần.
+Bạn nói muốn làm chặt phần quản lý tính năng và nghiệp vụ trước. Đúng ý tôi: **bước 1 đến 7 đều nằm trong phần đó.** Code và deploy chỉ vào ở bước 8.

@@ -103,7 +103,7 @@ ai gọi ai, ai bị ai gọi, file nào import file nào. Trích bằng parser 
 
 ```python
 # @kidea:feature FEAT-MVP-ORDER-LIMIT
-# @kidea:implements BR-BAL-003, BR-BAL-004
+# @kidea:implements LOGIC-BAL-003, LOGIC-BAL-004
 # @kidea:invariant INV-BALANCE-001
 def reserve_balance(user_id: str, amount: Decimal) -> ReservationId:
     ...
@@ -119,9 +119,9 @@ Tài liệu cũng có frontmatter tương tự:
 
 ```yaml
 ---
-id: BR-BAL-003
+id: LOGIC-BAL-003
 feature: FEAT-MVP-ORDER-LIMIT
-kind: business-rule
+kind: logic
 ---
 ```
 
@@ -137,9 +137,9 @@ Trong kidea thì **AI viết toàn bộ code, kể cả annotation** — Human k
 
 **Một — cùng một hành động.** AI viết hàm và viết annotation trong cùng một lần sửa, cùng một file. Không có bước thứ hai để quên. File index tách rời thì luôn có bước thứ hai.
 
-**Hai, và đây mới là lý do thật — máy đối chiếu chéo được.** Annotation không được tin vì "AI khai thì chắc đúng", mà vì kidea kiểm tra nó bằng hai tấm bản đồ còn lại: mọi `BR` phải có ít nhất một hàm khai `implements`; mọi hàm trong đường dẫn nghiệp vụ phải khai `implements`; mọi ID trong annotation phải tồn tại thật; hàm khai `implements BR-X` mà `BR-X` đã bị thay thế thì báo động. Một file index tách rời không có gì để đối chiếu, nên không kiểm được.
+**Hai, và đây mới là lý do thật — máy đối chiếu chéo được.** Annotation không được tin vì "AI khai thì chắc đúng", mà vì kidea kiểm tra nó bằng hai tấm bản đồ còn lại: mọi `LOGIC` phải có ít nhất một hàm khai `implements`; mọi hàm trong đường dẫn nghiệp vụ phải khai `implements`; mọi ID trong annotation phải tồn tại thật; hàm khai `implements BR-X` mà `BR-X` đã bị thay thế thì báo động. Một file index tách rời không có gì để đối chiếu, nên không kiểm được.
 
-Và câu hỏi *"sửa BR-BAL-003 thì ảnh hưởng những đâu"* trở thành **một truy vấn graph do script trả lời**, không phải một câu hỏi AI phải nhớ.
+Và câu hỏi *"sửa LOGIC-BAL-003 thì ảnh hưởng những đâu"* trở thành **một truy vấn graph do script trả lời**, không phải một câu hỏi AI phải nhớ.
 
 ### 1.5. Đơn vị version là **CHANGE**, không phải **session**
 
@@ -159,7 +159,7 @@ Mỗi node trong graph mang hai trường:
 
 ```json
 {
-  "id": "BR-BAL-003",
+  "id": "LOGIC-BAL-003",
   "content_hash": "sha256:9f2c...",
   "synced_with": "CHANGE-2026-0042"
 }
@@ -240,7 +240,7 @@ project-root/
 │       └── references/
 ├── docs/
 │   ├── product/           # overview, actors, scope, channel matrix
-│   ├── requirements/      # features/, business-rules/, invariants/
+│   ├── requirements/      # features/, logics/, invariants/
 │   ├── logical-tests/
 │   ├── ux/
 │   ├── architecture/
