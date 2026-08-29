@@ -1,301 +1,268 @@
 # Trả lời của Claude
 
-Bạn nói đúng, tôi viết như dịch máy. Viết lại từ đầu bằng tiếng Việt bình thường, ý tưởng giữ nguyên.
-
-Tài liệu `design/04-BAN-DO-NGHIEP-VU.md` cũng đã viết lại cho dễ đọc.
+Ba điểm bạn chốt tôi đã ghi vào tài liệu. Bốn thắc mắc trả lời ở dưới — **câu 4 thì bạn đúng, tôi sai**. Phần nghiên cứu ở cuối.
 
 ---
 
-## Vấn đề gốc
+## Câu 1 — Năm loại khối là những loại nào
 
-Tài liệu để dạng chữ thì AI phải đọc hết rồi tự nhớ. Sửa chỗ nào, nó ngồi nghĩ xem chỗ nào bị ảnh hưởng.
-
-Vấn đề nằm ở **số lượng**. Sàn giao dịch có hàng trăm quy tắc. Không ai nhớ nổi hết quan hệ giữa chúng.
-
-Và tệ nhất là: khi nhớ sót, **không ai biết mình đang sót**. Bạn hỏi "sửa cái này ảnh hưởng đâu", AI trả lời 5 chỗ, nghe rất chắc chắn. Thực ra có 8 chỗ. Bạn không có cách nào biết.
-
-Nên cách thoát chỉ có một:
-
-> **Đừng bắt ai nhớ. Ghi ra rõ ràng, rồi để máy dò.**
-
----
-
-## Chuyện này không mới, nhưng giờ mới làm nổi
-
-Bạn đoán đúng là ngày xưa người ta đã gặp rồi. Nó có tên: **bảng dò ngược**. Từ một yêu cầu, dò được xuống tận dòng code nào lo cho nó, bài kiểm tra nào phủ nó.
-
-Hàng không, thiết bị y tế, ô tô **bắt buộc** phải có. Phần mềm điều khiển máy bay không được cấp phép nếu không dò ngược được.
-
-Vậy tại sao công ty phần mềm bình thường không làm?
-
-| Lý do bỏ cuộc | Ngày xưa | Bây giờ |
-|---|---|---|
-| Cập nhật bảng quá mệt | Người ngồi gõ tay từng dòng | **AI gõ, và gõ ngay lúc sửa code** |
-| Bảng lệch mà không ai biết | Không có cách kiểm | **Máy so nội dung, lệch là báo** |
-| Làm cực mà lâu mới thấy lợi | Vài tháng sau mới dùng tới | **AI dùng ngay từ ngày đầu** |
-
-Dòng cuối mới là chỗ đổi cục diện. Ngày xưa bảng này là **việc phải làm thêm**, ai cũng ghét. Bây giờ nó là **thứ giúp AI làm việc** — không có bảng thì AI mò cả repo, có bảng thì nó được đưa đúng phần cần đọc.
-
-Từ gánh nặng thành công cụ.
-
----
-
-## Chẻ nghiệp vụ ra thành năm loại khối
+Lỗi của tôi, hỏi mà không nhắc lại là hỏi về cái gì.
 
 | Loại khối | Nói dễ hiểu | Ví dụ của bạn |
 |---|---|---|
 | **Mảng** | Một vùng lớn của hệ thống | Đăng nhập · Risk Engine · Khớp lệnh Spot |
 | **Tính năng** | Thứ người dùng đòi, gọi tên được | Đăng nhập bằng Google |
-| **Phần dùng chung** | Việc mà nhiều tính năng cùng cần | **Quản lý thiết bị · Cấp token** |
+| **Phần dùng chung** | Việc mà nhiều tính năng cùng cần | Quản lý thiết bị · Cấp token |
 | **Luật** | Một câu, đúng hay sai kiểm được ngay | Tối đa 5 thiết bị |
 | **Dữ liệu** | Thứ hệ thống phải nhớ và cập nhật | Thiết bị · Phiên · Số dư |
 
-### Vì sao "Tính năng" và "Phần dùng chung" phải tách
-
-Chính ví dụ của bạn cho thấy.
-
-**Đăng nhập bằng Google** — có người đòi nó, bạn viết nó vào danh sách MVP.
-
-**Quản lý thiết bị** — không ai đòi. Không ai nói "cho tôi tính năng quản lý thiết bị". Nhưng cả ba cách đăng nhập đều cần.
-
-Nên: tính năng thì bạn xếp vào MVP hay để sau, ghi rõ chạy web hay mobile. Phần dùng chung thì **không xếp** — tính năng nào dùng nó là MVP thì nó cũng là MVP.
-
-### Làm sao biết một câu đã đủ nhỏ
-
-Bạn hỏi khối nhỏ nhất nên là gì. Đây là cách thử, không phải đoán:
-
-> **Viết thử một bài kiểm tra cho riêng câu đó. Chạy được, ra đúng hoặc sai — thì nó đủ nhỏ.**
-
-| Câu | Đủ nhỏ chưa? | Vì sao |
-|---|---|---|
-| "Tối đa 5 thiết bị hoạt động" | **Rồi** | Thêm cái thứ 6 phải bị chặn. Kiểm được ngay |
-| "Quản lý thiết bị an toàn" | Chưa | Kiểm kiểu gì? Đây là mong muốn, chưa phải luật |
-| "Đăng nhập bằng Google" | Chưa | Là cả mớ luật gộp lại. Đây là tính năng |
-
-Cách thử này chặn được cả hai lỗi: chẻ vụn quá, và gom to quá.
-
-### Chuyện "TTNV" lần trước — hoá ra cả hai đều đúng
-
-Bạn nói khối nhỏ nhất là *"quản lý số dư của 1 user"*. Tôi bảo nên là danh từ "Số dư". Giờ nhìn lại thì đây là **hai thứ khác nhau, và cần cả hai**:
-
-```mermaid
-flowchart LR
-    A["Quản lý số dư<br/>← cái bạn gọi là TTNV"] -->|"canh giữ"| B["Số dư<br/>← cái tôi gọi là dữ liệu"]
-    C["Đặt lệnh Limit"] -->|"dùng"| A
-    D["Rút tiền"] -->|"dùng"| A
-    E["Nạp tiền"] -->|"dùng"| A
-```
-
-- **Số dư** là *con số được lưu*.
-- **Quản lý số dư** là *nơi viết ra mọi luật về số dư*, và là nơi duy nhất được sửa con số đó.
-
-Bạn nghĩ đúng, chỉ là hai thứ bị gộp vào một tên.
+Câu hỏi là: **sàn crypto của bạn có thứ gì không nhét vừa vào năm loại này không?**
 
 ---
 
-## Phần quan trọng nhất: hai kiểu quan hệ
+## Câu 2 — Không, AI không phải đọc hết mọi file
 
-### Kiểu 1 — mình tự viết ra
+Bạn hiểu sai một chỗ, và lỗi ở tôi vì không nói rõ. Đây là chỗ then chốt:
+
+> **Có hai người đọc khác nhau. Script đọc hết. AI thì không.**
+
+```mermaid
+flowchart TD
+    A["Hàng trăm file, mỗi khối một file"] --> B["/kidea index<br/>SCRIPT đọc hết<br/>Chạy vài giây, KHÔNG TỐN TOKEN<br/>vì nó chỉ là Python đọc chữ"]
+    B --> C["Một file tra cứu duy nhất<br/>map-business.json"]
+    D["Bạn hỏi: sửa cái này ảnh hưởng đâu?"] --> E["Máy tra ĐÚNG MỘT FILE đó<br/>Trả lời tức thì"]
+    C --> E
+    E --> F["Ra danh sách 3-5 khối liên quan"]
+    F --> G["AI CHỈ ĐỌC 3-5 file đó"]
+```
+
+Cụ thể:
+
+| Ai | Đọc gì | Tốn gì |
+|---|---|---|
+| **Script** | Hết tất cả file | Vài giây. Không tốn token — nó không phải AI, chỉ là chương trình đọc chữ |
+| **Máy tra cứu** | Một file tổng hợp | Tức thì |
+| **AI** | **Chỉ 3-5 file mà máy chỉ ra** | Đúng thứ cần, không thừa |
+
+Và script chỉ chạy lại khi có file đổi. Không phải mỗi lần hỏi.
+
+**Nên nó tiết kiệm token hơn hẳn cách để tài liệu dạng chữ.** Cách cũ: AI phải đọc cả đống tài liệu rồi tự lọc. Cách này: máy lọc trước bằng chương trình, AI chỉ đọc phần đã lọc.
+
+---
+
+## Câu 3 — Đúng, "khối" chính là "node" bạn nói
+
+Cùng một thứ. Tôi đổi sang chữ "khối" vì lần trước bạn bảo tôi viết như dịch máy.
+
+Bạn thích gọi "node" thì cứ gọi, tôi theo.
+
+---
+
+## Câu 4 — Bạn đúng. Ví dụ của tôi sai.
+
+Bạn viết:
+
+> *"Sau đó ta đánh giá tiếp là phần Quản lý thiết bị có cần update không, nếu có thì ta lại thấy các phần đăng nhập... Nếu phần Quản lý thiết bị không cần update thì ta chỉ cần test lại phần Quản lý thiết bị."*
+
+Đúng. Và ví dụ của tôi làm sai điều đó — tôi bôi đỏ ba cách đăng nhập ở "vòng 2" **trước khi** đánh giá xong "vòng 1".
+
+Tức là tôi vi phạm chính cái luật hai mức mà tôi tự đặt ra ở lần trước.
+
+Đã sửa. Nguyên tắc đúng:
+
+> **Đi từng bậc một. Đánh giá xong bậc này mới mở bậc sau.**
+
+```mermaid
+flowchart TD
+    A["Sửa luật: 5 → 3 thiết bị"] --> B["Máy tra bản đồ:<br/>ai chứa hoặc dùng luật này?<br/>ai khác cũng đụng vào Thiết bị?"]
+    B --> C["Ra danh sách bậc 1"]
+    C --> D["ĐÁNH GIÁ từng cái:<br/>nó có phải sửa không?"]
+    D --> E{"Có cái nào<br/>phải sửa không?"}
+    E -- "Không" --> F["DỪNG.<br/>Chỉ chạy lại test cho chúng"]
+    E -- "Có" --> G["Với RIÊNG những cái phải sửa,<br/>tra tiếp bậc sau"]
+    G --> D
+```
+
+Chạy lại ví dụ cho đúng:
 
 ```text
-A gồm B     B là một phần của A
-A cần B     A phải có B mới chạy được
+═══ BẬC 1 ═══
+  [1] Quản lý thiết bị        vì nó chứa luật này
+  [2] Luật "thu hồi thiết bị thì huỷ phiên"
+                              vì nó cũng đụng vào Thiết bị
+
+  Chưa đi tiếp. Đánh giá 2 chỗ này trước.
+
+═══ ĐÁNH GIÁ ═══
+  [1] CÓ PHẢI SỬA — con số 5 nằm ngay trong đó
+  [2] KHÔNG PHẢI SỬA — không dính gì tới con số 5
+      → nhánh này dừng, nhưng vẫn chạy lại test
+
+═══ BẬC 2 ═══
+  Chỉ [1] phải sửa, nên chỉ tra tiếp từ [1]:
+    Đăng nhập Google / Apple / Facebook
+
+═══ ĐÁNH GIÁ ═══
+  Cả ba KHÔNG PHẢI SỬA — chúng chỉ gọi sang, không tự đếm
+  → dừng, vẫn chạy lại test cả ba
 ```
 
-Đây chính là cây bạn mô tả: đăng nhập Google **cần** quản lý thiết bị; quản lý thiết bị **gồm** luật tối đa 5 cái.
-
-Kiểu này do người viết. Ai đó phải nhớ và ghi.
-
-### Kiểu 2 — máy tự thấy
-
-Mỗi khối chỉ khai một câu: *"tôi đụng vào Thiết bị"*. Không cần biết ai khác cũng đụng.
-
-Rồi máy tự ghép: **ai cùng đụng vào Thiết bị thì liên quan tới nhau.**
-
-### Vì sao thiếu kiểu 2 là hỏng
-
-```mermaid
-flowchart TD
-    subgraph S1["Chỉ có kiểu 1"]
-    A1["Sửa Quản lý thiết bị"] --> B1["Thấy: 3 cách đăng nhập cần nó"]
-    B1 --> C1["SÓT: Cấp token cũng đụng vào<br/>Thiết bị, mà không ai ghi<br/>quan hệ giữa hai bên"]
-    end
-    subgraph S2["Có cả kiểu 2"]
-    A2["Sửa Quản lý thiết bị"] --> B2["Kiểu 1: 3 cách đăng nhập"]
-    A2 --> C2["Kiểu 2: còn ai đụng vào Thiết bị?"]
-    C2 --> D2["BẮT ĐƯỢC: Cấp token có luật<br/>thu hồi thiết bị thì huỷ phiên"]
-    end
-```
-
-Nói gọn:
-
-> **Kiểu 1 chỉ có những gì mình nhớ ra và ghi lại.**
-> **Kiểu 2 bắt được cả những gì mình quên.**
-
-Kiểu 1 dễ hiểu, đọc là thấy. Kiểu 2 mới là cái lưới hứng.
+Nếu [1] hoá ra không phải sửa thì **ba cách đăng nhập không bao giờ bị nhắc tới**. Đây là chỗ giữ cho danh sách cảnh báo ngắn và đáng đọc — và cũng là chỗ tôi làm sai lần trước.
 
 ---
 
-## Ví dụ đăng nhập của bạn, vẽ đầy đủ
+# Phần nghiên cứu
 
-```mermaid
-flowchart TD
-    DOM["MẢNG<br/>Đăng nhập và Tài khoản"]
-    DOM --> F1["TÍNH NĂNG<br/>Đăng nhập bằng Google"]
-    DOM --> F2["TÍNH NĂNG<br/>Đăng nhập bằng Apple"]
-    DOM --> F3["TÍNH NĂNG<br/>Đăng nhập bằng Facebook"]
-    F1 -->|"cần"| C1["DÙNG CHUNG<br/>Cấp token"]
-    F2 -->|"cần"| C1
-    F3 -->|"cần"| C1
-    F1 -->|"cần"| C2["DÙNG CHUNG<br/>Quản lý thiết bị"]
-    F2 -->|"cần"| C2
-    F3 -->|"cần"| C2
-    C1 -->|"gồm"| L4["LUẬT<br/>Thu hồi thiết bị thì huỷ mọi phiên"]
-    C2 -->|"gồm"| L5["LUẬT<br/>Tối đa 5 thiết bị"]
-    C2 -->|"gồm"| L6["LUẬT<br/>Thiết bị lạ phải xác minh 2 lớp"]
-    C1 -->|"canh giữ"| E1["DỮ LIỆU<br/>Phiên"]
-    C2 -->|"canh giữ"| E2["DỮ LIỆU<br/>Thiết bị"]
-    L4 -.->|"đọc"| E2
-    L5 -.->|"sửa"| E2
-    L6 -.->|"đọc"| E2
-```
+Tài liệu đầy đủ: `design/05-CAC-LOAI-THAY-DOI.md`.
 
-Nhìn đường **nét đứt** từ luật *"Thu hồi thiết bị thì huỷ mọi phiên"* sang **Thiết bị**.
+## Ngành đã có sẵn ba thứ đáng lấy
 
-Luật đó nằm trong **Cấp token**. Còn **Quản lý thiết bị** là nhánh khác hẳn. Trên cây, hai bên không dính gì nhau. Nhưng chúng đụng chung một chỗ: **Thiết bị**.
+### 1. "Liên kết đáng ngờ" — đúng cái bạn nghĩ ra, có hơn 20 năm rồi
 
-Đây đúng là loại quan hệ mà người ta hay quên.
+Bạn nói: sửa một luật thì mọi thứ dựa vào nó phải bị đánh dấu, không cho đóng việc chừng nào chưa xử lý.
 
----
+Ngành gọi nó là **suspect link**. Nối yêu cầu A với thiết kế B với test C. A đổi thì mọi liên kết từ A đi ra **tự động bị đánh dấu đáng ngờ**. Ai đó phải mở ra xem và xác nhận. Chưa xác nhận thì nó cứ nằm đó.
 
-## Thử sửa: đổi "tối đa 5 thiết bị" thành 3
+Đây là tính năng cốt lõi của IBM DOORS và Jama — công cụ mà hàng không, thiết bị y tế, ô tô bắt buộc phải dùng.
 
-```text
-$ /kidea impact LOGIC-DEV-001
+**Bạn nghĩ ra đúng cái người ta đã làm.** Khác biệt là ngày xưa con người phải ngồi mở từng cái.
 
-═══ MÁY DÒ ═══
+### 2. Quyết định thì không xoá, chỉ thay thế
 
-Vòng 1 — theo quan hệ mình đã ghi
-  Quản lý thiết bị       chứa luật này              → PHẢI XEM LẠI
+Có cách làm phổ biến: mỗi quyết định lớn ghi thành một tờ ngắn — bối cảnh, quyết định gì, hệ quả gì. **Không bao giờ xoá.** Muốn đổi thì viết tờ mới và đánh dấu tờ cũ là "đã bị thay thế".
 
-Vòng 2 — ai cần Quản lý thiết bị
-  Đăng nhập bằng Google                             → PHẢI XEM LẠI
-  Đăng nhập bằng Apple                              → PHẢI XEM LẠI
-  Đăng nhập bằng Facebook                           → PHẢI XEM LẠI
+Vì sao: sáu tháng sau có người hỏi *"sao hồi đó lại làm thế này?"* — vẫn tra ra. Xoá đi thì mất luôn lý do.
 
-Vòng 3 — còn ai đụng vào Thiết bị nữa không
-  Luật "Thu hồi thiết bị thì huỷ mọi phiên"
-       nằm trong Cấp token
-       trên cây KHÔNG dính gì tới Quản lý thiết bị
-       ⚠ ĐÂY LÀ CHỖ DỄ QUÊN NHẤT                    → PHẢI XEM LẠI
+Đúng cái tôi đã đề xuất: khối bị bỏ thì đánh dấu **đã nghỉ**, nằm nguyên chỗ cũ.
 
-═══ HỎI BẠN ═══
+### 3. Bốn cái rổ
 
-1. Giảm còn 3 thì user đang có 5 thiết bị xử lý sao?
-   Tôi đề xuất: giữ nguyên cho họ, chỉ chặn thêm mới.
-
-2. Luật "thu hồi thiết bị thì huỷ phiên" có phải sửa không?
-   Tôi đánh giá: KHÔNG. Nó không dính gì tới con số 5.
-   → Nhánh này dừng. NHƯNG VẪN PHẢI CHẠY LẠI TEST.
-
-3. Ba cách đăng nhập có phải sửa không?
-   Tôi đánh giá: KHÔNG. Chúng chỉ gọi sang, không tự đếm.
-   → Dừng. VẪN PHẢI CHẠY LẠI TEST cả ba.
-```
-
-**Vòng 3 mới là chỗ ăn tiền.** Không có kiểu quan hệ thứ hai thì chẳng ai nghĩ tới luật đó — nó nằm ở nhánh khác hoàn toàn.
-
----
-
-## Bảy luật chẻ khối
-
-| # | Luật | Nói dễ hiểu |
-|:--:|---|---|
-| 1 | Một khối chỉ nên sửa vì một lý do | Phải sửa vì hai chuyện chẳng liên quan → chẻ đôi |
-| 2 | Khối nhỏ nhất phải kiểm được | Chưa viết được bài kiểm riêng → chưa đủ nhỏ |
-| 3 | Cái gì dùng chung thì kéo ra riêng | Hai chỗ trở lên dùng → thành khối riêng, không chép |
-| 4 | Không được vòng tròn | *A gồm B* mà *B lại cần A* là chẻ sai |
-| 5 | Mỗi cục dữ liệu chỉ một nơi canh giữ | Nhiều nơi đọc được, nhưng **sửa phải qua một cửa** |
-| 6 | Đừng sâu quá | Ba tới năm tầng là vừa |
-| 7 | Đặt tên theo một kiểu | Tên lung tung thì máy không nhận ra hai khối nói cùng một chuyện |
-
-Luật 3 chính là ý *"manager device dùng chung"* của bạn:
-
-```mermaid
-flowchart LR
-    subgraph SAI["SAI — chép vào từng chỗ"]
-    A1["Google<br/>+ luật thiết bị"]
-    A2["Apple<br/>+ luật thiết bị"]
-    A3["Facebook<br/>+ luật thiết bị"]
-    end
-    subgraph DUNG["ĐÚNG — kéo ra riêng"]
-    B1["Google"] --> BC["Quản lý thiết bị"]
-    B2["Apple"] --> BC
-    B3["Facebook"] --> BC
-    end
-```
-
-Chép vào từng chỗ thì sửa một chỗ, quên hai chỗ. Kéo ra riêng thì sửa một chỗ, máy chỉ ra ngay cả ba.
-
-Luật 5 đáng giá nhất về lâu dài:
-
-```mermaid
-flowchart TD
-    subgraph SAI2["SAI — ai cũng thò tay sửa"]
-    X1["Đặt lệnh"] --> XE["Số dư"]
-    X2["Rút tiền"] --> XE
-    X3["Admin chỉnh"] --> XE
-    end
-    subgraph DUNG2["ĐÚNG — sửa phải qua một cửa"]
-    Y1["Đặt lệnh"] --> YC["Quản lý số dư<br/>canh giữ"]
-    Y2["Rút tiền"] --> YC
-    Y3["Admin chỉnh"] --> YC
-    YC --> YE["Số dư"]
-    end
-```
-
-Bên trái: cái điều luôn phải đúng — *khả dụng cộng bị giữ bằng tổng* — **không có ai canh**. Mỗi chỗ tự lo, chỉ cần một chỗ lo sai là số dư sai.
-
-Bên phải: một chỗ canh cho tất cả.
-
----
-
-## Lưu bằng gì — Mermaid để xem, không để lưu
-
-| | Một file Mermaid to | Mỗi khối một file |
-|---|---|---|
-| Nhìn bằng mắt | Tốt | Phải vẽ ra mới xem |
-| Máy tra cứu | Khó | Dễ |
-| **So nội dung từng khối xem có đổi không** | **Không làm được** | Làm được |
-| Hai người sửa hai khối khác nhau | Đụng nhau | Không đụng |
-| Đưa cho AI đúng phần nó cần | Phải cắt tay | Lấy đúng file |
-
-Dòng thứ ba quan trọng nhất. Cả cơ chế *"sửa cái này thì cái kia hết hiệu lực"* dựa vào việc so nội dung từng khối. Nhét chung một file thì sửa một chỗ, cả file đổi, không biết chỗ nào.
-
-```mermaid
-flowchart LR
-    A["BẢN GỐC<br/>mỗi khối một file<br/>quan hệ ghi ở đầu file"] --> B["/kidea index"]
-    B --> C["File máy đọc<br/>để tra cứu nhanh"]
-    B --> D["Sơ đồ Mermaid<br/>VẼ RA để bạn xem"]
-```
-
-**Sơ đồ luôn vẽ lại từ đầu, không bao giờ sửa tay.** Sửa tay là lệch ngay.
-
----
-
-## Gộp và tách — dấu hiệu đếm được
-
-| Thấy gì | Đề nghị |
+| Rổ | Là gì |
 |---|---|
-| Một khối có hơn 9 khối con | **Chẻ ra** |
-| Một khối sửa từ 3 cục dữ liệu trở lên | **Chẻ ra** — nó ôm quá nhiều việc |
-| Hai khối cứ sửa là sửa cùng nhau, 5 lần gần nhất đều thế | **Gộp lại** — chúng thực ra là một |
-| Một khối chỉ có đúng một nơi dùng | **Gộp vào nơi đó** |
-| Khối không ai dùng, không thuộc về đâu | **Xoá hoặc nối lại** |
+| **Rổ khởi điểm** | Chỗ mình biết chắc phải sửa |
+| **Rổ máy đoán** | Chỗ máy dò ra là có thể bị ảnh hưởng |
+| **Rổ thật** | Chỗ cuối cùng thực sự phải sửa |
+| **Rổ báo nhầm** | Máy bảo bị ảnh hưởng, hoá ra không |
 
-Dấu hiệu *"cứ sửa là sửa cùng nhau"* lấy từ lịch sử git. Đếm được, không phải đoán.
+Cái đáng học nằm ở rổ cuối.
 
-**Đây là lời nhắc, không phải rào chặn.** Bắt dọn dẹp mỗi lần thì một tuần sau bạn sẽ tắt nó đi.
+---
+
+## Bài học lớn nhất: báo thừa cũng chết như báo thiếu
+
+Đây là thứ giá trị nhất tôi tìm được, và nó buộc tôi sửa thiết kế.
+
+Các công cụ dò ảnh hưởng ngày xưa thất bại **không phải vì dò sót. Chúng dò ra quá nhiều.**
+
+```mermaid
+flowchart TD
+    A["Sửa một luật nhỏ"] --> B["Công cụ bôi đỏ 47 chỗ"]
+    B --> C["Người phải ngồi mở từng chỗ"]
+    C --> D["Mở 20 chỗ đầu, không chỗ nào<br/>thực sự liên quan"]
+    D --> E["Bắt đầu bấm 'đã xử lý' cho nhanh"]
+    E --> F["Chỗ thứ 41 là chỗ THẬT<br/>cũng bị bấm cho qua"]
+    F --> G["Công cụ thành vô dụng<br/>Rồi bị tắt đi"]
+```
+
+| Kiểu sai | Trước mắt | Kết cục thật |
+|---|---|---|
+| **Báo thiếu** | Không thấy gì | Bug ra production |
+| **Báo thừa** | Danh sách dài | Người ta ngừng đọc → rồi cũng bug ra production |
+
+Báo thừa **trông có vẻ an toàn** nhưng dẫn tới cùng một kết cục, chỉ chậm hơn.
+
+### Ba chỗ tôi sửa vì bài học này
+
+**Một — đi từng bậc.** Đúng cái bạn chỉ ra ở câu 4.
+
+**Hai — chia mức chắc chắn, đừng dồn một đống:**
+
+| Mức | Là gì | Máy nói sao |
+|---|---|---|
+| **Chắc** | A trực tiếp chứa hoặc cần B, mà B vừa đổi | "Phải xem" |
+| **Có thể** | A và B cùng đụng một cục dữ liệu | "Nên xem, đây là chỗ hay quên" |
+| **Xa** | Cách 3 bậc trở lên | "Ghi nhận, xem sau cũng được" |
+
+**Ba — AI lọc trước, bạn chỉ xem cái khó.**
+
+Đây là chỗ AI đổi cục diện. Ngày xưa người phải mở cả 47 chỗ. Giờ AI đọc 47 chỗ, loại 40 chỗ rõ ràng không liên quan, và đưa bạn **7 chỗ kèm lý do tại sao nó không chắc**.
+
+Bạn vẫn quyết. Nhưng quyết trên 7 thứ đáng quyết, không phải 47 thứ.
+
+---
+
+## Mười bốn loại thay đổi thực tế
+
+### Nhóm A — Nghiệp vụ đổi thật
+
+| # | Loại | Ví dụ | Chỗ nguy hiểm |
+|:--:|---|---|---|
+| 1 | Thêm tính năng | Thêm đăng nhập bằng SMS | Quên kiểm xem có trùng cái cũ không |
+| 2 | Đổi một luật | 5 → 3 thiết bị | Quên chỗ khác cũng đụng cùng cục dữ liệu |
+| 3 | Đổi luồng | Chèn bước xác minh vào giữa | Luật cũ ngầm giả định thứ tự cũ |
+| 4 | **Đổi dữ liệu** | Số dư tách khả dụng / bị giữ | **Nguy hiểm nhất.** Mọi nơi đụng vào đều lung lay |
+| 5 | Bỏ tính năng | Bỏ đăng nhập Facebook | Phần dùng chung giờ chỉ còn một nơi dùng |
+| 6 | Đổi ưu tiên | Kéo tính năng từ "để sau" lên MVP | Phần dùng chung của nó cũng thành MVP theo |
+
+### Nhóm B — Mô hình đổi, hành vi giữ nguyên
+
+| # | Loại | Bản đồ đổi gì |
+|:--:|---|---|
+| 7 | Tách một khối | Một thành nhiều — dễ chia cạnh sai |
+| 8 | Gộp nhiều khối | Nhiều thành một — mã cũ đánh dấu đã nghỉ, không xoá |
+| 9 | Refactor code | **Bản đồ nghiệp vụ không đổi.** Chỉ bản đồ code đổi |
+
+Nhóm này cho thấy **ba tấm bản đồ đổi độc lập**. Refactor code thì tấm nghiệp vụ đứng yên.
+
+### Nhóm C — Sửa cái sai
+
+| # | Loại | Ai sai | Làm gì |
+|:--:|---|---|---|
+| 10 | Sửa bug | Code sai, tài liệu đúng | Viết test tái hiện lỗi trước, rồi sửa code |
+| 11 | Sửa tài liệu | Tài liệu sai, code đúng | Sửa tài liệu, **và truy xem ai duyệt cái sai đó, vì sao lọt** |
+
+Có trường hợp thứ ba hay bị bỏ qua: **cả hai đều nghe hợp lý nhưng khác nhau**. Lúc đó không phải sửa lỗi, mà là **phải quyết định**. Việc này của bạn, không của AI.
+
+### Nhóm D — Sức ép từ ngoài
+
+| # | Loại | Chỗ nguy hiểm |
+|:--:|---|---|
+| 12 | Đổi chỉ tiêu hiệu năng | Nghiệp vụ không đổi, nhưng có thể phải đổi cả kiến trúc |
+| 13 | Yêu cầu tuân thủ mới | Cắt ngang rất nhiều tính năng cùng lúc |
+| 14 | Bên thứ ba đổi | Trông như chuyện kỹ thuật, thực ra đổi nghiệp vụ |
+
+Loại 14 hay bị coi nhẹ. Google bỏ một trường trong token — nghe như việc của lập trình viên. Nhưng nếu trường đó đang dùng để nhận diện thiết bị, thì luật *"thiết bị lạ phải xác minh 2 lớp"* đổi ý nghĩa. Đó là chuyện nghiệp vụ.
+
+---
+
+## Quy trình phải co giãn theo mức nặng
+
+Ngành IT doanh nghiệp chia làm ba: **có sẵn quy trình** · **bình thường** · **khẩn cấp**.
+
+kidea nên tương tự. Bắt mọi thay đổi đi đủ tám trạm thì sửa một dòng chữ cũng mất nửa ngày, và bạn sẽ bỏ dùng.
+
+| Mức | Loại nào | Đi qua gì |
+|---|---|---|
+| **Nhẹ** | bug · sửa tài liệu · refactor | Dò ảnh hưởng → sửa → test lại → xong |
+| **Vừa** | đổi luật · đổi luồng · bên thứ ba | Thêm: bạn duyệt phần nghiệp vụ |
+| **Nặng** | thêm/bỏ tính năng · tách/gộp · đổi ưu tiên | Đi đủ các trạm |
+| **Rất nặng** | **đổi dữ liệu** · hiệu năng · tuân thủ | Đủ trạm, cộng nghiệm thu hệ thống lại từ đầu |
+
+Máy tự đoán mức và đề xuất. **Bạn nâng lên thì luôn được. Hạ xuống thì phải ghi lý do.**
+
+---
+
+## Thứ ngành chưa có, và là lý do bây giờ đáng làm
+
+Cả ba thứ ở trên đều giả định **con người vừa dò vừa đánh giá**. Đó là lý do chúng đắt, chậm, và hầu hết công ty bỏ.
+
+| Việc | Ngày xưa ai làm | Giờ ai làm |
+|---|---|---|
+| Cập nhật bản đồ khi code đổi | Người, và hay quên | **AI, ngay lúc sửa code** |
+| Dò xem ai bị ảnh hưởng | Người, đọc tài liệu | **Máy, tra bản đồ. Không quên, không mệt** |
+| Đánh giá "có thật sự phải sửa không" | Người, từng cái một | **AI lọc trước, người quyết cái khó** |
+
+Việc còn lại của con người: **quyết**. Đó là việc đúng nên để cho con người, và là việc duy nhất máy không làm được.
 
 ---
 
@@ -303,8 +270,17 @@ Dấu hiệu *"cứ sửa là sửa cùng nhau"* lấy từ lịch sử git. Đ�
 
 | # | Quyết gì | Tôi nghiêng về |
 |:--:|---|---|
-| 1 | Năm loại khối có đủ không | Đủ. Nhưng sàn crypto có thứ nào không nhét vừa thì bạn nói |
-| 2 | Tách "Tính năng" và "Phần dùng chung" | Nên tách |
-| 3 | Luật 5 — sửa dữ liệu phải qua một cửa | Giữ |
-| 4 | Mỗi khối một file, sơ đồ vẽ ra để xem | Giữ |
-| 5 | Gộp/tách là lời nhắc hay rào chặn | Lời nhắc |
+| 1 | 14 loại thay đổi có thiếu loại nào không | Bạn làm sàn, bạn biết loại nào hay gặp mà tôi chưa nêu |
+| 2 | Bốn mức nặng nhẹ, loại nào thuộc mức nào | Như bảng trên |
+| 3 | Máy đoán mức, bạn nâng được, hạ thì ghi lý do | Giữ |
+| 4 | Chia ba mức chắc chắn khi báo ảnh hưởng | Giữ. Đây là chỗ tôi sửa sau khi tra cứu |
+
+---
+
+## Nguồn
+
+- [IBM DOORS — liên kết và truy vết](https://www.ibm.com/docs/en/engineering-lifecycle-management-suite/doors/9.7.1?topic=requirements-links-traceability)
+- [Jama Software — DOORS và giới hạn của nó](https://www.jamasoftware.com/blog/ibm-doors-software/)
+- [Jama Software — dò ảnh hưởng thay đổi](https://www.jamasoftware.com/blog/2013/07/12/change-impact-analysis/)
+- [Dò ảnh hưởng tích hợp cho quản lý thay đổi phần mềm](https://www.cs.wm.edu/~denys/pubs/ICSE12-ImpactAnalysis.pdf)
+- [Nghiên cứu quy mô lớn về dự đoán ảnh hưởng dựa trên đồ thị lời gọi](https://arxiv.org/pdf/1812.06286)

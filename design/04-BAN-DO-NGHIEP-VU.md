@@ -203,41 +203,86 @@ Nhưng chúng đụng chung một chỗ: **Thiết bị**.
 
 ## 6. Thử sửa: đổi "tối đa 5 thiết bị" thành 3
 
+Nguyên tắc: **đi từng bậc một. Đánh giá xong bậc này mới sang bậc sau.**
+
+Không được quét một lượt rồi bôi đỏ tất cả. Làm thế thì một thay đổi nhỏ cũng ra bốn chục dòng cảnh báo, và người đọc sẽ bỏ qua hết.
+
+```mermaid
+flowchart TD
+    A["Sửa luật: 5 → 3 thiết bị"] --> B["Máy tra bản đồ:<br/>ai chứa hoặc dùng luật này?<br/>ai khác cũng đụng vào Thiết bị?"]
+    B --> C["Ra danh sách bậc 1"]
+    C --> D["ĐÁNH GIÁ từng cái:<br/>nó có phải sửa không?"]
+    D --> E{"Có cái nào<br/>phải sửa không?"}
+    E -- "Không" --> F["DỪNG.<br/>Chỉ chạy lại test cho chúng"]
+    E -- "Có" --> G["Với riêng những cái phải sửa,<br/>tra tiếp bậc sau"]
+    G --> D
+```
+
+Chạy thật:
+
 ```text
 $ /kidea impact LOGIC-DEV-001
 
-═══ MÁY DÒ ═══
+═══ BẬC 1 ═══
 
-Vòng 1 — theo quan hệ mình đã ghi
-  Quản lý thiết bị       chứa luật này              → PHẢI XEM LẠI
+Máy tra bản đồ, tìm được 2 chỗ:
 
-Vòng 2 — ai cần Quản lý thiết bị
-  Đăng nhập bằng Google                             → PHẢI XEM LẠI
-  Đăng nhập bằng Apple                              → PHẢI XEM LẠI
-  Đăng nhập bằng Facebook                           → PHẢI XEM LẠI
+  [1] Quản lý thiết bị
+      Vì sao: nó chứa luật này
 
-Vòng 3 — còn ai đụng vào Thiết bị nữa không
-  Luật "Thu hồi thiết bị thì huỷ mọi phiên"
-       nằm trong Cấp token
-       trên cây KHÔNG dính gì tới Quản lý thiết bị
-       ⚠ ĐÂY LÀ CHỖ DỄ QUÊN NHẤT                    → PHẢI XEM LẠI
+  [2] Luật "Thu hồi thiết bị thì huỷ mọi phiên"
+      Vì sao: nó cũng đụng vào Thiết bị
+      Ghi chú: nó nằm trong Cấp token, trên cây KHÔNG dính gì
+               tới Quản lý thiết bị. Nếu chỉ nhìn cây thì không thấy.
 
-═══ HỎI BẠN ═══
+Chưa đi tiếp. Phải đánh giá 2 chỗ này trước.
 
-1. Giảm còn 3 thì user đang có 5 thiết bị xử lý sao?
-   Tôi đề xuất: giữ nguyên cho họ, chỉ chặn thêm mới.
-   Nếu vậy phải viết thêm một luật.
+═══ ĐÁNH GIÁ ═══
 
-2. Luật "thu hồi thiết bị thì huỷ phiên" có phải sửa không?
-   Tôi đánh giá: KHÔNG. Nó không dính gì tới con số 5.
-   → Nhánh này dừng. NHƯNG VẪN PHẢI CHẠY LẠI TEST.
+  [1] Quản lý thiết bị — CÓ PHẢI SỬA
+      Vì con số 5 nằm ngay trong đó.
+      Và còn một câu chưa ai trả lời:
+      user đang có 5 thiết bị thì xử lý sao?
+      → Tôi đề xuất: giữ nguyên cho họ, chỉ chặn thêm mới.
+      → Nếu vậy phải viết thêm một luật.
 
-3. Ba cách đăng nhập có phải sửa không?
-   Tôi đánh giá: KHÔNG. Chúng chỉ gọi sang, không tự đếm.
-   → Dừng. VẪN PHẢI CHẠY LẠI TEST cả ba.
+  [2] Luật huỷ phiên — KHÔNG PHẢI SỬA
+      Nó không dính gì tới con số 5.
+      → Nhánh này dừng. Nhưng vẫn chạy lại test.
+
+═══ BẬC 2 ═══
+
+Chỉ [1] phải sửa, nên chỉ tra tiếp từ [1]:
+
+  Ai dùng Quản lý thiết bị?
+    Đăng nhập bằng Google
+    Đăng nhập bằng Apple
+    Đăng nhập bằng Facebook
+
+═══ ĐÁNH GIÁ ═══
+
+  Cả ba — KHÔNG PHẢI SỬA
+  Chúng chỉ gọi sang, không tự đếm số thiết bị.
+  → Dừng. Nhưng vẫn chạy lại test cả ba.
+
+═══ KẾT ═══
+
+  Phải sửa    Luật 5 thiết bị
+              Quản lý thiết bị
+              Thêm một luật mới cho user đang vượt
+
+  Test lại    Đăng nhập Google / Apple / Facebook
+              Luật huỷ phiên
+              Quản lý thiết bị
+
+  Không cho đóng việc chừng nào còn thứ chưa chạy lại test.
 ```
 
-**Vòng 3 mới là chỗ ăn tiền.** Không có kiểu quan hệ thứ hai thì chẳng ai nghĩ tới cái luật đó — nó nằm ở nhánh khác hoàn toàn.
+### Hai điều đáng chú ý
+
+**Một.** Chỗ [2] ở bậc 1 là chỗ chỉ tìm được nhờ kiểu quan hệ thứ hai. Trên cây, *Cấp token* và *Quản lý thiết bị* là hai nhánh rời nhau. Chỉ vì cả hai cùng đụng vào **Thiết bị** nên máy mới lôi nó ra.
+
+**Hai.** Bậc 2 chỉ mở ra sau khi bậc 1 được đánh giá. Nếu Quản lý thiết bị hoá ra không phải sửa, ba cách đăng nhập **không bao giờ bị nhắc tới**. Đây là chỗ giữ cho danh sách cảnh báo ngắn và đáng đọc.
 
 ---
 

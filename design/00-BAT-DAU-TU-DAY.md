@@ -9,7 +9,8 @@ Cập nhật: 2026-08-30 · Trạng thái: **chờ duyệt**
 | **`00-BAT-DAU-TU-DAY.md`** ← bạn đang đọc | Luôn. Đọc để duyệt |
 | `01-BO-MAY.md` | Khi muốn kiểm tra một cơ chế cụ thể |
 | `02-CONG-VIEC-TUNG-TRAM.md` | Khi muốn kiểm tra AI phải làm gì ở mỗi bước |
-| **`04-BAN-DO-NGHIEP-VU.md`** | **Cách biểu diễn nghiệp vụ thành bản đồ máy đọc được. Đọc cùng file này** |
+| **`04-BAN-DO-NGHIEP-VU.md`** | **Cách ghi nghiệp vụ thành bản đồ máy đọc được. Đọc cùng file này** |
+| **`05-CAC-LOAI-THAY-DOI.md`** | **14 loại thay đổi thực tế, và ngành xử lý ra sao** |
 | `03-vi-sao-thiet-ke-nhu-vay.md` | Khi thắc mắc "sao không làm cách khác" |
 
 ---
