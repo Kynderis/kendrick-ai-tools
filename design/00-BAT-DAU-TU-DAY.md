@@ -15,6 +15,38 @@ Cập nhật: 2026-08-30 · Trạng thái: **chờ duyệt**
 
 ---
 
+## 0. Điều cuối cùng kidea phải làm được
+
+Mọi thứ trong các tài liệu này chỉ phục vụ **hai việc**.
+
+### Việc 1 — AI không được nhảy cóc
+
+> *"Nếu ta không có quy trình thì với một project lớn, ta sẽ rất khó control."*
+
+AI không được viết code khi nghiệp vụ chưa rõ. Không được tự nói "xong rồi". Không được tự duyệt cho chính mình.
+
+Chặn bằng **script chạy tự động**, không bằng lời dặn trong prompt. Đây là chỗ Claude Code làm được mà Codex không.
+
+### Việc 2 — Sửa gì cũng phải làm đến cùng
+
+> *"Khi sửa hoặc xoá thì truy ra các bên liên quan và làm đến cùng."*
+
+Sửa một luật thì biết ngay còn chỗ nào phải sửa theo, chỗ nào phải test lại. Không sót.
+
+Trả lời bằng cách **tra bản đồ**, không bằng trí nhớ của AI. Máy thì không quên và không bịa.
+
+### Thứ làm cho cả hai chạy được
+
+Trạng thái nằm **trong repo**, không nằm trong trí nhớ của phiên chat. Đóng máy, mở lại tuần sau, gõ một lệnh là biết đang ở đâu.
+
+---
+
+Ba dòng trên là toàn bộ mục tiêu. Mọi thứ còn lại trong thư mục này — tám trạm, năm loại khối, ba tấm bản đồ, mười bốn loại thay đổi — đều chỉ là **cách làm** cho hai việc đó.
+
+Nếu đọc phần nào mà không thấy nó phục vụ việc 1 hoặc việc 2, thì phần đó thừa. Cứ nói.
+
+---
+
 ## 1. kidea là gì
 
 Một bộ công cụ chạy trong Claude Code, đặt **trạm kiểm tra** giữa ý tưởng và code.
