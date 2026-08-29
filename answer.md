@@ -1,83 +1,107 @@
 # Trả lời của Claude
 
-Bạn nói đúng, chúng ta đi xa rồi. Tóm lại.
-
-Đã thêm phần này vào đầu `design/00-BAT-DAU-TU-DAY.md` để lần sau mở ra là thấy ngay.
+Đọc lại rồi. **Tôi tóm tắt sai ở lần trước.** Đã sửa trong `design/00-BAT-DAU-TU-DAY.md`.
 
 ---
 
-## Điều cuối cùng kidea phải làm được
+## Tôi sai ở đâu
 
-Chỉ **hai việc**.
+Lần trước tôi nói mục tiêu là hai việc: *AI không nhảy cóc* và *sửa gì làm đến cùng*.
 
-### Việc 1 — AI không được nhảy cóc
+**Hai cái đó không phải mục tiêu. Chúng là cách làm.**
 
-> *"Nếu ta không có quy trình thì với một project lớn, ta sẽ rất khó control."*
-> — lời bạn, buổi đầu tiên
+Mục tiêu thật, bằng chính lời bạn buổi đầu tiên:
 
-AI không được viết code khi nghiệp vụ chưa rõ. Không được tự nói "xong rồi". Không được tự duyệt cho chính mình.
+> *"Tạo ra một bộ Skill/flow để Human + AI có thể biến ý tưởng thành bản MVP, sau đó phát triển tiếp các tính năng chờ để thành sản phẩm hoàn chỉnh."*
 
-Chặn bằng **script chạy tự động**, không bằng lời dặn trong prompt.
+Tức là: **đi trọn con đường từ ý tưởng tới sản phẩm chạy thật trên production, rồi tiếp tục phát triển sau đó.**
 
-### Việc 2 — Sửa gì cũng phải làm đến cùng
+Hai cơ chế kia chỉ là thứ giữ cho con đường không đi chệch. Tôi lấy phương tiện làm mục đích, và thu nhỏ phạm vi lại còn một phần nhỏ.
 
-> *"Khi sửa hoặc xoá thì truy ra các bên liên quan và làm đến cùng."*
-> — lời bạn, trong bản nháp
+## Và tôi sai lần thứ hai
 
-Sửa một luật thì biết ngay còn chỗ nào phải sửa theo, chỗ nào phải test lại. Không sót.
+Tôi bảo mười bốn loại thay đổi là "đi quá đà". **Không phải.** Bạn viết rõ ràng:
 
-Trả lời bằng cách **tra bản đồ**, không bằng trí nhớ của AI.
+> *"Tôi cần biết trong thực tế phát triển phần mềm thì có các loại hành động, sự việc nào hay xảy ra để ta xây dựng trước flow đáp ứng cho nó."*
 
-### Thứ làm cho cả hai chạy được
-
-Trạng thái nằm **trong repo**, không nằm trong trí nhớ phiên chat. Đóng máy, mở lại tuần sau, gõ một lệnh là biết đang ở đâu.
+Đó là bạn yêu cầu thẳng. Tôi làm đúng rồi lại tự nhận là thừa.
 
 ---
 
-Ba dòng trên là toàn bộ mục tiêu.
+## Toàn bộ con đường bạn đã vạch
 
-Tám trạm, năm loại khối, ba tấm bản đồ, mười bốn loại thay đổi — **tất cả chỉ là cách làm** cho hai việc đó. Không có cái nào là mục tiêu riêng.
+Lấy từ hai buổi đầu, không cắt bớt:
+
+| # | Bước | Bạn nói gì |
+|:--:|---|---|
+| 1 | Nhập tài liệu ChatGPT | Phân MVP / Future / Idea. **Kèm: cái nào web, cái nào mobile, cái nào dashboard** |
+| 2 | Soát nghiệp vụ MVP | Còn một tính năng chưa rõ là chặn cả flow |
+| 3 | Sinh logical test | Dạng chữ, cực chi tiết, phủ cả case biên và hiếm gặp |
+| 4 | Human review test | Bàn tới khi đạt mới đi tiếp |
+| 5 | **Nhập thiết kế giao diện** | AI ngoài vẽ web/mobile/dashboard, **kèm test mô tả giao diện, hiệu ứng, action** |
+| 6 | **Thiết kế hệ thống** | Cụm logic → service → input/output → tech stack → backup/monitoring → HA → OS/RAM/CPU/DB → flow client → req/res → swagger |
+| 7 | **Bảng service ↔ nghiệp vụ** | Từ đó sinh test từng service, test tích hợp, test full luồng, test từ client |
+| 8 | **Setup môi trường DEV** | CPU/RAM/DB/máy chủ, ghi lại quy trình, CI/CD hoặc GitOps |
+| 9 | Code backend | Theo đặc tả. Viết test. Pass hết → bạn verify → deploy DEV |
+| 10 | **Code dashboard** | *"Quan trọng hơn nhiều phần khác vì nó phải là nơi chính xác nhất, trung thực nhất"* |
+| 11 | Code web/mobile | Test giao diện, màn hình, hiệu ứng, tích hợp → verify → deploy DEV |
+| 12 | **DEV lên PROD** | *"Thứ tôi còn phân vân chưa biết làm thế nào"* |
+| 13 | **Vòng đời sau MVP** | Thêm tính năng, update, bug, chuyển idea thành tính năng |
+| 14 | **TDD đặt ở đâu** | Test nào trước code, test nào sau, tuỳ backend/dashboard/web/mobile |
 
 ---
 
-## Chúng ta đang ở đâu
+## Bảy chỗ bạn xin tư vấn mà tôi chưa trả lời
 
-| Phần | Trạng thái | Phục vụ việc nào |
-|---|---|---|
-| Cuốn sổ trạng thái | Thiết kế xong | Nền cho cả hai |
-| Người gác chặn AI | Thiết kế xong | Việc 1 |
-| Bản đồ nghiệp vụ | Thiết kế xong | Việc 2 |
-| Lệnh dò ảnh hưởng | Thiết kế xong | Việc 2 |
-| Human duyệt, AI không tự duyệt | Thiết kế xong | Việc 1 |
+Đọc lại tôi mới thấy bạn hỏi thẳng bảy lần, và tôi chưa đưa cái nào vào tài liệu thiết kế:
 
-**Phần lõi đã xong.** Đủ để bắt đầu viết.
-
-## Chỗ tôi đã đi quá đà
-
-| Phần | Vì sao thừa lúc này |
+| Bạn hỏi | Nguyên văn |
 |---|---|
-| Mười bốn loại thay đổi | Cần khi bạn đã có sản phẩm chạy và bắt đầu sửa. Còn xa |
-| Năm trạm cuối (kiến trúc, code, nghiệm thu, phát hành) | Chỉ chạm tới sau khi qua trạm nghiệp vụ. Còn xa |
-| Bản đồ CODE và CẦU NỐI | Chỉ cần khi bắt đầu có code. Còn xa |
-| Bảng kiểm 21 dòng | Cái này thì cần sớm, nhưng chưa cần duyệt ngay |
+| **Dashboard** | *"Chỗ dashboard này tôi chưa có kinh nghiệm, bạn tư vấn thêm"* — hỏi hai lần |
+| **Test cho giao diện** | *"Về các loại test cho mục đích này thì nhờ bạn tư vấn thêm"* |
+| **Chia nhỏ bước thiết kế hệ thống** | *"Bước khá lớn, có lẽ còn phải chia thành các step nhỏ hơn, bạn gợi ý giúp tôi"* |
+| **Các loại test cần có** | *"Thú thật tôi cũng chưa biết rõ hết cần những loại test nào"* |
+| **Bước code dashboard** | *"Ở bước này tôi thiếu sót gì thì cứ gợi ý nhé"* |
+| **DEV lên PROD** | *"Từ DEV lên Prod thì ta cần làm những gì nữa, AI/Human làm gì"* |
+| **TDD đặt ở đâu** | *"Test nào cần sinh trước code, sau code, tuỳ từng mục"* |
 
-Không phí — sau này đều dùng. Nhưng **viết sớm hơn mức cần**, và đó là lý do bạn thấy lan man. Lỗi của tôi.
+Điều đáng nói: **cuộc trò chuyện với Codex đã trả lời phần lớn những câu này.** Trong đó có tách dashboard làm ba loại, có bảng các loại test và thời điểm sinh, có chỗ nên dùng TDD chỗ không, có cổng kiểm trước khi lên production.
 
-## Việc thật sự cần làm tiếp
-
-Chỉ có ba, theo thứ tự:
-
-**1. Cuốn sổ và người gác.**
-Xong bước này bạn tự tay thử được: bảo tôi "code đi" khi trạm chưa qua, và xem tôi bị chặn. Đây là lúc biết **việc 1** có chạy thật không.
-
-**2. Nhập tài liệu và soát nghiệp vụ.**
-Xong bước này bạn đưa tài liệu ChatGPT thật vào và xem kidea báo thiếu gì.
-
-**3. Bản đồ nghiệp vụ và lệnh dò ảnh hưởng.**
-Xong bước này bạn đổi một luật và xem máy khoanh vùng. Đây là lúc biết **việc 2** có chạy thật không.
-
-Ba bước này là toàn bộ phần lõi. Xong ba bước, kidea đã làm được hai việc bạn cần. Mọi thứ khác thêm vào sau.
+Nhưng tôi chưa mang một chữ nào trong đó sang thư mục `design/`. Tôi mải thiết kế **bộ máy** mà bỏ quên **nội dung**.
 
 ---
 
-Bạn muốn tôi bắt đầu bước 1 chưa, hay còn muốn chốt gì trước?
+## Vậy tình hình thật là
+
+| Phần | Trạng thái |
+|---|---|
+| Bộ máy — cuốn sổ, người gác, ba bản đồ, các lệnh | **Thiết kế xong** |
+| Bước 1, 2 — nhập tài liệu và soát nghiệp vụ | **Thiết kế xong** |
+| Bước 13 — vòng đời sau MVP, 14 loại thay đổi | **Thiết kế xong** |
+| Bước 3, 4 — logical test | Mới có khung |
+| Bước 5 — nhập thiết kế giao diện | Mới có khung |
+| Bước 6, 7 — thiết kế hệ thống, bảng service | Mới có khung |
+| Bước 8 — môi trường DEV, CI/CD | **Chưa có gì** |
+| Bước 9, 10, 11 — code backend, dashboard, client | Mới có khung |
+| Bước 12 — DEV lên PROD | **Chưa có gì** |
+| Bước 14 — TDD đặt ở đâu | **Chưa có gì** |
+| Bảy câu tư vấn ở trên | **Chưa trả lời câu nào trong tài liệu** |
+
+Trước đây tôi nói *"phần lõi đã xong, đủ để bắt đầu viết"*. Đúng với **bộ máy**. Sai với **con đường**.
+
+---
+
+## Ba hướng đi tiếp, bạn chọn
+
+**Hướng A — Trả nợ bảy câu tư vấn trước.**
+Mang nội dung từ cuộc trò chuyện Codex sang, bổ sung và sắp lại thành tài liệu dùng được. Xong thì con đường đầy đủ trên giấy, chưa có gì chạy.
+
+**Hướng B — Viết code cho bước 1 và 2 trước.**
+Làm cho nhập tài liệu và soát nghiệp vụ chạy thật. Bạn đưa tài liệu ChatGPT vào và thấy kidea hoạt động. Các bước sau thiết kế tiếp khi tới.
+
+**Hướng C — Vừa làm vừa đi.**
+Viết code bước 1 và 2. Khi nào sắp tới bước nào thì thiết kế chi tiết bước đó. Đúng nguyên tắc *thiết kế vừa đủ, đúng lúc* mà chính kidea dạy.
+
+Tôi nghiêng về **C**, vì hai lý do: thiết kế bước 8 và 12 bây giờ là đoán mò về một hệ thống chưa tồn tại, và bạn cần thấy kidea chạy thật để biết thiết kế có đúng không.
+
+Nhưng bạn từng nói *"cứ làm kỹ nhé, tôi chờ đợi được, kể cả bạn làm rất lâu"* — nếu bạn muốn con đường đầy đủ trên giấy trước thì chọn A, tôi làm.

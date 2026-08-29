@@ -15,35 +15,53 @@ Cập nhật: 2026-08-30 · Trạng thái: **chờ duyệt**
 
 ---
 
-## 0. Điều cuối cùng kidea phải làm được
+## 0. Mục tiêu
 
-Mọi thứ trong các tài liệu này chỉ phục vụ **hai việc**.
+Bằng chính lời Human, buổi đầu tiên:
 
-### Việc 1 — AI không được nhảy cóc
+> *"Tạo ra một bộ Skill/flow để Human + AI có thể biến ý tưởng thành bản MVP, sau đó phát triển tiếp các tính năng chờ để thành sản phẩm hoàn chỉnh."*
 
-> *"Nếu ta không có quy trình thì với một project lớn, ta sẽ rất khó control."*
+Đây mới là mục tiêu. **Đi trọn con đường từ ý tưởng tới sản phẩm chạy thật trên production, và tiếp tục phát triển sau đó.**
 
-AI không được viết code khi nghiệp vụ chưa rõ. Không được tự nói "xong rồi". Không được tự duyệt cho chính mình.
+Vì sao cần:
 
-Chặn bằng **script chạy tự động**, không bằng lời dặn trong prompt. Đây là chỗ Claude Code làm được mà Codex không.
+> *"Trong thời đại AI, nếu ta không có quy trình thì với một project lớn, ta sẽ rất khó control."*
+> *"Cách tôi tận dụng AI chưa tốt, nó chưa theo một khung nào cả nên nó làm tôi khó control."*
 
-### Việc 2 — Sửa gì cũng phải làm đến cùng
+### Hai cơ chế giữ cho con đường không đi chệch
 
-> *"Khi sửa hoặc xoá thì truy ra các bên liên quan và làm đến cùng."*
+Đây là **cách làm**, không phải mục tiêu:
 
-Sửa một luật thì biết ngay còn chỗ nào phải sửa theo, chỗ nào phải test lại. Không sót.
+**Một — AI không được nhảy cóc.** Không viết code khi nghiệp vụ chưa rõ, không tự nói "xong rồi", không tự duyệt cho chính mình. Chặn bằng script chạy tự động, không bằng lời dặn trong prompt.
 
-Trả lời bằng cách **tra bản đồ**, không bằng trí nhớ của AI. Máy thì không quên và không bịa.
+**Hai — sửa gì cũng phải làm đến cùng.** Sửa một luật thì biết ngay chỗ nào phải sửa theo, chỗ nào phải test lại. Trả lời bằng cách tra bản đồ, không bằng trí nhớ AI.
 
-### Thứ làm cho cả hai chạy được
-
-Trạng thái nằm **trong repo**, không nằm trong trí nhớ của phiên chat. Đóng máy, mở lại tuần sau, gõ một lệnh là biết đang ở đâu.
+**Và thứ làm cho cả hai chạy được:** trạng thái nằm trong repo, không nằm trong trí nhớ phiên chat.
 
 ---
 
-Ba dòng trên là toàn bộ mục tiêu. Mọi thứ còn lại trong thư mục này — tám trạm, năm loại khối, ba tấm bản đồ, mười bốn loại thay đổi — đều chỉ là **cách làm** cho hai việc đó.
+## 0b. Toàn bộ con đường Human đã vạch ra
 
-Nếu đọc phần nào mà không thấy nó phục vụ việc 1 hoặc việc 2, thì phần đó thừa. Cứ nói.
+Đây là phạm vi thật, lấy từ hai buổi đầu. Không cắt bớt.
+
+| # | Bước | Human nói gì |
+|:--:|---|---|
+| 1 | Nhập tài liệu ChatGPT | Phân MVP / Future / Idea. **Kèm: cái nào web, cái nào mobile, cái nào dashboard** |
+| 2 | Soát nghiệp vụ MVP | Còn một tính năng chưa rõ là chặn cả flow |
+| 3 | Sinh logical test | Dạng chữ, cực chi tiết, phủ cả case biên và hiếm gặp |
+| 4 | Human review test | Bàn tới khi đạt mới đi tiếp |
+| 5 | **Nhập thiết kế giao diện** | AI ngoài vẽ web/mobile/dashboard. **Kèm test mô tả giao diện, hiệu ứng, action** |
+| 6 | **Thiết kế hệ thống** | Cụm logic → service/module → input/output → giao tiếp → tech stack → lưu trữ/backup/monitoring → HA/replicate → OS/RAM/CPU/DB → flow web-mobile → req/res → swagger |
+| 7 | **Bảng service ↔ nghiệp vụ** | Từ đó sinh test riêng từng service, test tích hợp, test full luồng, test từ client |
+| 8 | **Setup môi trường DEV** | CPU/RAM/DB/máy chủ. Ghi lại quy trình. CI/CD hoặc GitOps |
+| 9 | Code backend | Theo đặc tả đã chốt. Viết test. Pass hết → Human verify → deploy DEV |
+| 10 | **Code dashboard** | *"Quan trọng hơn nhiều phần khác vì nó phải là nơi chính xác nhất, trung thực nhất"* |
+| 11 | Code web/mobile | Test giao diện, màn hình, hiệu ứng, tích hợp → Human verify → deploy DEV |
+| 12 | **DEV lên PROD** | *"Thứ tôi còn phân vân chưa biết làm thế nào"* |
+| 13 | **Vòng đời sau MVP** | Thêm tính năng, update, bug, chuyển idea thành tính năng |
+| 14 | **TDD đặt ở đâu** | Test nào trước code, test nào sau, tuỳ backend/dashboard/web/mobile |
+
+Bảy chỗ in đậm là chỗ Human **nói rõ là chưa có kinh nghiệm và cần tư vấn**.
 
 ---
 
